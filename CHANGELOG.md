@@ -31,7 +31,6 @@ Docs: https://docs.clawd.bot
 - UI: prevent double-scroll in Control UI chat by locking chat layout to the viewport. (#1283) — thanks @bradleypriest.
 
 ### Fixes
-- Gateway: restart heartbeat runner on agents.list hot reloads so per-agent heartbeat changes apply without a full restart. (#1221)
 - Config: allow Perplexity as a web_search provider in config validation. (#1230)
 
 ## 2026.1.19-2
