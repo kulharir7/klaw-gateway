@@ -48,12 +48,13 @@ const ROOT_CONFIG = path.join(KLAW_STATE_DIR, 'klaw.json');
 // 3. Parent dir (dev without bundle)
 function findRootMjs() {
   const candidates = [
-    // 1. Packaged app (asar:false) — files in resources/app/gateway/
+    // 1. Installed app: app.asar.unpacked (node can't run from inside asar!)
+    path.join((process.resourcesPath || ''), 'app.asar.unpacked', 'openclaw.mjs'),
+    // 2. Dev mode: electron/../openclaw.mjs
     path.join(__dirname, '..', 'openclaw.mjs'),
+    // 3. Packaged without asar
     path.join(__dirname, 'gateway', 'openclaw.mjs'),
-    // 2. Dev source: electron/../openclaw.mjs
-    path.join(__dirname, '..', 'openclaw.mjs'),
-    // 3. Fallback: resources/gateway/ (extraResources, if ever used)
+    // 4. extraResources fallback
     path.join(process.resourcesPath || '', 'gateway', 'openclaw.mjs'),
   ];
   for (const p of candidates) {
@@ -71,11 +72,11 @@ const ROOT_MJS = findRootMjs();
 // which breaks when entry.js tries to respawn with Node-only CLI flags.
 async function findNodeBinary() {
   const { execSync } = require('child_process');
-  // 1. Bundled portable node (shipped with installer)
+  // 1. Bundled portable node (shipped with installer via extraResources)
   const bundledPaths = [
-    path.join(__dirname, 'node', 'node.exe'),           // electron/node/node.exe
-    path.join(__dirname, '..', 'node', 'node.exe'),     // klaw/node/node.exe
-    path.join(process.resourcesPath || '', 'node', 'node.exe'), // resources/node/node.exe
+    path.join(process.resourcesPath || '', 'node', 'node.exe'), // resources/node/node.exe (installed app)
+    path.join(__dirname, 'node', 'node.exe'),           // electron/node/node.exe (dev mode)
+    path.join(__dirname, '..', 'node', 'node.exe'),     // klaw/node/node.exe (dev mode alt)
   ];
   for (const p of bundledPaths) {
     if (fs.existsSync(p)) {
@@ -311,7 +312,7 @@ async function startGateway() {
   ];
 
   gatewayProcess = spawn(nodeBin, spawnArgs, {
-    cwd: path.dirname(ROOT_MJS),
+    cwd: path.dirname(ROOT_MJS).replace('app.asar', 'app.asar.unpacked'),
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: false,

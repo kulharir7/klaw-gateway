@@ -10,6 +10,11 @@ files:
   - "!**/*.test.*"
   - "!**/*.map"
 
+asarUnpack:
+  - openclaw.mjs
+  - dist/**/*
+  - node_modules/**/*.node
+
 extraResources:
   - from: electron/node/
     to: node/
