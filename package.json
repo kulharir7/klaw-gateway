@@ -1,20 +1,20 @@
 {
-  "name": "openclaw",
+  "name": "klaw",
   "version": "2026.2.26",
-  "description": "Multi-channel AI gateway with extensible messaging integrations",
+  "description": "Klaw - Self-hosted AI Gateway. Connect chat apps to AI agents.",
   "keywords": [],
-  "homepage": "https://github.com/openclaw/openclaw#readme",
+  "homepage": "https://github.com/kulharir7/klaw-gateway",
   "bugs": {
     "url": "https://github.com/openclaw/openclaw/issues"
   },
   "license": "MIT",
-  "author": "",
+  "author": "Ravindra Kumar",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/openclaw/openclaw.git"
+    "url": "https://github.com/kulharir7/klaw-gateway.git"
   },
   "bin": {
-    "openclaw": "openclaw.mjs"
+    "klaw": "openclaw.mjs"
   },
   "directories": {
     "doc": "docs",
