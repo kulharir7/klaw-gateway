@@ -3,7 +3,8 @@ const { spawn, execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const net = require('net');
-const { autoUpdater } = require('electron-updater');
+let autoUpdater;
+try { autoUpdater = require('electron-updater').autoUpdater; } catch { autoUpdater = null; }
 
 // ─── Squirrel.Windows install/uninstall handling ─────
 if (require('os').platform() === 'win32') {
@@ -327,6 +328,7 @@ function stopGateway() {
 
 // ─── Auto Updater ────────────────────────────────────
 function setupAutoUpdater() {
+  if (!autoUpdater) { console.log('[Klaw] Auto-updater not available, skipping'); return; }
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
@@ -1141,11 +1143,11 @@ app.whenReady().then(async () => {
     });
   }
 
-  // If gateway didn't start, show error
-  if (!started) {
+  // If gateway didn't start (and not first run), show error
+  if (!started && configExists) {
     dialog.showErrorBox(
       'Klaw — Gateway Error',
-      'Failed to start the Klaw gateway.\n\nMake sure Node.js is installed and no other process is using port ' + GATEWAY_PORT
+      'Failed to start the Klaw gateway.\n\nMake sure no other process is using port ' + GATEWAY_PORT
     );
   }
 
