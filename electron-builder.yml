@@ -2,6 +2,8 @@ appId: ai.klaw.desktop
 productName: Klaw
 copyright: Copyright © 2026 Ravindra Kumar
 
+asar: false
+
 files:
   - "**/*"
   - "!.git"
@@ -9,11 +11,6 @@ files:
   - "!release"
   - "!**/*.test.*"
   - "!**/*.map"
-
-asarUnpack:
-  - openclaw.mjs
-  - dist/**/*
-  - node_modules/**/*.node
 
 extraResources:
   - from: electron/node/

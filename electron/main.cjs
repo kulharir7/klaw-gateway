@@ -48,14 +48,12 @@ const ROOT_CONFIG = path.join(KLAW_STATE_DIR, 'klaw.json');
 // 3. Parent dir (dev without bundle)
 function findRootMjs() {
   const candidates = [
-    // 1. Installed app: app.asar.unpacked (node can't run from inside asar!)
-    path.join((process.resourcesPath || ''), 'app.asar.unpacked', 'openclaw.mjs'),
-    // 2. Dev mode: electron/../openclaw.mjs
+    // 1. Installed app (asar: false) — resources/app/openclaw.mjs
     path.join(__dirname, '..', 'openclaw.mjs'),
-    // 3. Packaged without asar
+    // 2. Dev mode: electron/../openclaw.mjs (same path works!)
+    // 3. Fallback paths
+    path.join(process.resourcesPath || '', 'app', 'openclaw.mjs'),
     path.join(__dirname, 'gateway', 'openclaw.mjs'),
-    // 4. extraResources fallback
-    path.join(process.resourcesPath || '', 'gateway', 'openclaw.mjs'),
   ];
   for (const p of candidates) {
     if (fs.existsSync(p)) {
@@ -312,7 +310,7 @@ async function startGateway() {
   ];
 
   gatewayProcess = spawn(nodeBin, spawnArgs, {
-    cwd: path.dirname(ROOT_MJS).replace('app.asar', 'app.asar.unpacked'),
+    cwd: path.dirname(ROOT_MJS),
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: false,
