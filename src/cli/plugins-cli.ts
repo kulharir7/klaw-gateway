@@ -161,7 +161,7 @@ function isPackageNotFoundInstallError(message: string): boolean {
 export function registerPluginsCli(program: Command) {
   const plugins = program
     .command("plugins")
-    .description("Manage OpenClaw plugins and extensions")
+    .description("Manage Klaw plugins and extensions")
     .addHelpText(
       "after",
       () =>
