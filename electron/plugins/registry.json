@@ -1,0 +1,264 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-22",
+  "plugins": [
+    {
+      "id": "github",
+      "name": "GitHub",
+      "description": "Manage repos, PRs, issues, and actions directly from Root AI",
+      "icon": "🐙",
+      "category": "coding",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["git", "github", "code", "pr", "issues"],
+      "source": "builtin",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-github"],
+        "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+      },
+      "requiredEnv": ["GITHUB_TOKEN"],
+      "setupUrl": "https://github.com/settings/tokens"
+    },
+    {
+      "id": "filesystem",
+      "name": "Filesystem",
+      "description": "Read, write, search, and manage files on your computer",
+      "icon": "📁",
+      "category": "productivity",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["files", "folders", "read", "write", "search"],
+      "source": "builtin",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "${HOME}"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "web-search",
+      "name": "Web Search",
+      "description": "Search the web using Brave Search API",
+      "icon": "🌐",
+      "category": "productivity",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["search", "web", "brave", "google"],
+      "source": "builtin",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+        "env": { "BRAVE_API_KEY": "${BRAVE_API_KEY}" }
+      },
+      "requiredEnv": ["BRAVE_API_KEY"],
+      "setupUrl": "https://brave.com/search/api/"
+    },
+    {
+      "id": "memory",
+      "name": "Memory",
+      "description": "Persistent knowledge graph — AI remembers things across sessions",
+      "icon": "🧠",
+      "category": "productivity",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["memory", "knowledge", "remember", "graph"],
+      "source": "builtin",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-memory"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "fetch",
+      "name": "Web Fetch",
+      "description": "Fetch and extract content from any URL — scrape pages, read articles",
+      "icon": "🔍",
+      "category": "productivity",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["fetch", "scrape", "url", "web", "extract"],
+      "source": "builtin",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-fetch"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite Database",
+      "description": "Query and manage SQLite databases with AI",
+      "icon": "🗄️",
+      "category": "data",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["database", "sql", "sqlite", "query"],
+      "source": "official",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sqlite", "${DB_PATH}"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "postgres",
+      "name": "PostgreSQL",
+      "description": "Connect to PostgreSQL databases — read-only queries with schema inspection",
+      "icon": "🐘",
+      "category": "data",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["database", "sql", "postgres", "postgresql"],
+      "source": "official",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"]
+      },
+      "requiredEnv": ["DATABASE_URL"]
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "description": "Send messages, read channels, manage your Slack workspace",
+      "icon": "💬",
+      "category": "integrations",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["slack", "messaging", "chat", "workspace"],
+      "source": "official",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-slack"],
+        "env": { "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}" }
+      },
+      "requiredEnv": ["SLACK_BOT_TOKEN"],
+      "setupUrl": "https://api.slack.com/apps"
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright Browser",
+      "description": "Automate browsers — test, scrape, fill forms, take screenshots",
+      "icon": "🎭",
+      "category": "coding",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["browser", "automation", "testing", "scraping", "playwright"],
+      "source": "official",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@playwright/mcp-server"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "description": "Read and manage Notion pages, databases, and blocks",
+      "icon": "📝",
+      "category": "integrations",
+      "author": "Community",
+      "version": "1.0.0",
+      "tags": ["notion", "notes", "docs", "wiki"],
+      "source": "community",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "notion-mcp-server"],
+        "env": { "NOTION_API_KEY": "${NOTION_API_KEY}" }
+      },
+      "requiredEnv": ["NOTION_API_KEY"],
+      "setupUrl": "https://www.notion.so/my-integrations"
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "description": "Manage Docker containers, images, and volumes",
+      "icon": "🐳",
+      "category": "coding",
+      "author": "Community",
+      "version": "1.0.0",
+      "tags": ["docker", "containers", "devops"],
+      "source": "community",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "docker-mcp-server"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "description": "Read, send, and manage emails from Gmail",
+      "icon": "📧",
+      "category": "integrations",
+      "author": "Community",
+      "version": "1.0.0",
+      "tags": ["email", "gmail", "google", "mail"],
+      "source": "community",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "gmail-mcp-server"],
+        "env": { "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}", "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}" }
+      },
+      "requiredEnv": ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"]
+    },
+    {
+      "id": "sequential-thinking",
+      "name": "Sequential Thinking",
+      "description": "Dynamic problem-solving through step-by-step thought sequences",
+      "icon": "🤔",
+      "category": "productivity",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["thinking", "reasoning", "problem-solving"],
+      "source": "builtin",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sequentialthinking"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "description": "Read, search, and manipulate Git repositories",
+      "icon": "🔀",
+      "category": "coding",
+      "author": "Root AI",
+      "version": "1.0.0",
+      "tags": ["git", "version-control", "commits", "branches"],
+      "source": "builtin",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-git"]
+      },
+      "requiredEnv": []
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "description": "Manage payments, customers, invoices with Stripe API",
+      "icon": "💳",
+      "category": "integrations",
+      "author": "Community",
+      "version": "1.0.0",
+      "tags": ["payments", "stripe", "billing", "invoices"],
+      "source": "community",
+      "mcpServer": {
+        "command": "npx",
+        "args": ["-y", "@stripe/mcp-server"],
+        "env": { "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}" }
+      },
+      "requiredEnv": ["STRIPE_SECRET_KEY"],
+      "setupUrl": "https://dashboard.stripe.com/apikeys"
+    }
+  ],
+  "categories": [
+    { "id": "coding", "name": "Coding & Dev", "icon": "💻" },
+    { "id": "productivity", "name": "Productivity", "icon": "⚡" },
+    { "id": "data", "name": "Data & Databases", "icon": "📊" },
+    { "id": "integrations", "name": "Integrations", "icon": "🔗" },
+    { "id": "fun", "name": "Fun & Creative", "icon": "🎨" }
+  ]
+}

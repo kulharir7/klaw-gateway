@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Klaw — Browser</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e5e5e5;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      background: #111118;
+      border-bottom: 1px solid #1e1e2e;
+      gap: 8px;
+      -webkit-app-region: drag;
+      height: 44px;
+    }
+    .nav-btns { display: flex; gap: 4px; -webkit-app-region: no-drag; }
+    .nav-btn {
+      background: #1a1a25;
+      border: 1px solid #2a2a3a;
+      color: #888;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { background: #2a2a3a; color: #fff; }
+    .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+    .url-bar {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: #0a0a0f;
+      border: 1px solid #2a2a3a;
+      border-radius: 10px;
+      padding: 0 12px;
+      -webkit-app-region: no-drag;
+      transition: border-color 0.2s;
+    }
+    .url-bar:focus-within { border-color: #7c3aed; }
+    .url-icon { color: #555; margin-right: 8px; font-size: 12px; }
+    .url-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #e5e5e5;
+      font-size: 13px;
+      padding: 7px 0;
+      outline: none;
+      font-family: 'Consolas', monospace;
+    }
+    .url-bar input::placeholder { color: #444; }
+
+    .topbar-actions { display: flex; gap: 6px; -webkit-app-region: no-drag; }
+    .action-btn {
+      background: #1a1a25;
+      border: 1px solid #2a2a3a;
+      color: #888;
+      padding: 5px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s;
+    }
+    .action-btn:hover { background: #2a2a3a; color: #fff; }
+    .action-btn.primary { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+    .action-btn.primary:hover { background: #6d28d9; }
+
+    /* ── Split View ── */
+    .split-container {
+      display: flex;
+      height: calc(100vh - 44px - 2px - 28px);
+      overflow: hidden;
+    }
+
+    .browser-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 300px;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .browser-frame {
+      flex: 1;
+      border: none;
+      background: #fff;
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    .divider {
+      width: 4px;
+      background: #1e1e2e;
+      cursor: col-resize;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .divider:hover { background: #7c3aed; }
+
+    .chat-panel {
+      width: 420px;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0f;
+      border-left: 1px solid #1e1e2e;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .chat-frame {
+      flex: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .chat-header {
+      padding: 10px 14px;
+      background: #111118;
+      border-bottom: 1px solid #1e1e2e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-title { font-size: 14px; font-weight: 600; color: #fff; }
+    .chat-toggle {
+      background: none;
+      border: 1px solid #2a2a3a;
+      color: #888;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .chat-toggle:hover { color: #fff; background: #1a1a25; }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      display: flex;
+      align-items: center;
+      background: #0d0d12;
+      padding: 0 8px;
+      gap: 2px;
+      overflow-x: auto;
+      min-height: 32px;
+    }
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #111118;
+      border: 1px solid transparent;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 12px;
+      color: #888;
+      max-width: 180px;
+      transition: all 0.1s;
+    }
+    .tab:hover { color: #ccc; }
+    .tab.active { background: #1a1a25; color: #fff; border-color: #2a2a3a; border-bottom-color: #1a1a25; }
+    .tab-close {
+      font-size: 14px;
+      cursor: pointer;
+      opacity: 0.5;
+      margin-left: 4px;
+    }
+    .tab-close:hover { opacity: 1; }
+    .tab-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .new-tab {
+      padding: 4px 10px;
+      cursor: pointer;
+      color: #555;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+    .new-tab:hover { background: #1a1a25; color: #fff; }
+
+    /* ── Loading Bar ── */
+    .loading-bar {
+      height: 2px;
+      background: #7c3aed;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .loading-bar.active { width: 70%; animation: load 2s ease-in-out infinite; }
+    .loading-bar.done { width: 100%; transition: width 0.2s, opacity 0.5s; opacity: 0; }
+    @keyframes load { 0% { width: 30%; } 50% { width: 70%; } 100% { width: 90%; } }
+
+    /* ── Command Bar ── */
+    .command-overlay, .scrape-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 50;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 80px;
+    }
+    .command-overlay.open, .scrape-overlay.open { display: flex; }
+    .command-bar, .scrape-panel {
+      background: #111118;
+      border: 1px solid #2a2a3a;
+      border-radius: 14px;
+      width: 600px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .scrape-panel { width: 700px; max-height: 70vh; }
+    .command-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .cmd-close {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .cmd-close:hover { color: #fff; }
+    #command-input {
+      width: 100%;
+      background: #0a0a0f;
+      border: 1px solid #2a2a3a;
+      color: #e5e5e5;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    #command-input:focus { border-color: #7c3aed; }
+    .command-hints {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .cmd-hint {
+      font-size: 12px;
+      padding: 5px 10px;
+      background: #1a1a25;
+      color: #888;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cmd-hint:hover { background: #2a2a3a; color: #e5e5e5; }
+    .cmd-run {
+      width: 100%;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .cmd-run:hover { background: #6d28d9; }
+    .cmd-run:disabled { opacity: 0.5; cursor: wait; }
+
+    /* ── Scrape Panel ── */
+    .scrape-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .scrape-tab {
+      padding: 6px 14px;
+      background: #1a1a25;
+      border: none;
+      color: #888;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .scrape-tab:hover { color: #fff; }
+    .scrape-tab.active { background: #7c3aed; color: #fff; }
+    .scrape-content {
+      background: #0a0a0f;
+      border: 1px solid #1e1e2e;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 12px;
+      color: #ccc;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: 'Consolas', monospace;
+      margin-bottom: 12px;
+    }
+    .scrape-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ── Page Info Bar ── */
+    .page-info {
+      padding: 6px 14px;
+      background: #111118;
+      border-top: 1px solid #1e1e2e;
+      font-size: 11px;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="nav-btns">
+      <button class="nav-btn" id="btn-back" onclick="goBack()" title="Back">←</button>
+      <button class="nav-btn" id="btn-fwd" onclick="goForward()" title="Forward">→</button>
+      <button class="nav-btn" id="btn-reload" onclick="reload()" title="Reload">↻</button>
+    </div>
+    <div class="url-bar">
+      <span class="url-icon">🔒</span>
+      <input id="url-input" type="text" placeholder="Enter URL or search..." value="https://www.google.com">
+    </div>
+    <div class="topbar-actions">
+      <button class="action-btn primary" onclick="askAI()" title="Ask AI about this page">🤖 Ask AI</button>
+      <button class="action-btn" onclick="scrapePage()" title="Extract page content">📋 Scrape</button>
+      <button class="action-btn" onclick="showCommandBar()" title="Run AI command on page">⚡ Command</button>
+      <button class="action-btn" onclick="screenshot()" title="Screenshot page">📸</button>
+      <button class="action-btn" onclick="toggleChat()">💬</button>
+      <button class="action-btn" onclick="goHome()">🏠</button>
+    </div>
+  </div>
+  <div class="loading-bar" id="loading-bar"></div>
+
+  <!-- Command Bar (overlay) -->
+  <div class="command-overlay" id="command-overlay">
+    <div class="command-bar">
+      <div class="command-header">
+        <span>⚡ AI Browser Command</span>
+        <button class="cmd-close" onclick="hideCommandBar()">✕</button>
+      </div>
+      <input id="command-input" type="text" placeholder="e.g. Fill the form with name Ravindra and email test@gmail.com" autofocus>
+      <div class="command-hints">
+        <span class="cmd-hint" onclick="setCommand('Fill all forms on this page with my details')">📝 Fill Forms</span>
+        <span class="cmd-hint" onclick="setCommand('Click the submit/login button')">👆 Click Button</span>
+        <span class="cmd-hint" onclick="setCommand('Extract all links from this page')">🔗 Extract Links</span>
+        <span class="cmd-hint" onclick="setCommand('Extract all images from this page')">🖼️ Extract Images</span>
+        <span class="cmd-hint" onclick="setCommand('Scroll to the bottom of the page')">⬇️ Scroll Down</span>
+        <span class="cmd-hint" onclick="setCommand('Fill email field with test@example.com')">📧 Fill Email</span>
+        <span class="cmd-hint" onclick="setCommand('Read the main article text')">📖 Read Article</span>
+        <span class="cmd-hint" onclick="setCommand('Find the price on this page')">💰 Find Price</span>
+      </div>
+      <button class="cmd-run" onclick="runCommand()">▶ Run Command</button>
+    </div>
+  </div>
+
+  <!-- Scrape Results Panel -->
+  <div class="scrape-overlay" id="scrape-overlay">
+    <div class="scrape-panel">
+      <div class="command-header">
+        <span>📋 Page Data</span>
+        <button class="cmd-close" onclick="hideScrape()">✕</button>
+      </div>
+      <div class="scrape-tabs">
+        <button class="scrape-tab active" onclick="showScrapeTab('text')">Text</button>
+        <button class="scrape-tab" onclick="showScrapeTab('links')">Links</button>
+        <button class="scrape-tab" onclick="showScrapeTab('images')">Images</button>
+        <button class="scrape-tab" onclick="showScrapeTab('forms')">Forms</button>
+        <button class="scrape-tab" onclick="showScrapeTab('meta')">Meta</button>
+      </div>
+      <pre class="scrape-content" id="scrape-content">Loading...</pre>
+      <div class="scrape-actions">
+        <button class="action-btn" onclick="copyScrape()">📋 Copy</button>
+        <button class="action-btn primary" onclick="sendScrapeToAI()">🤖 Send to AI</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Split View -->
+  <div class="split-container">
+    <!-- Browser Panel -->
+    <div class="browser-panel" id="browser-panel">
+      <webview id="browser-frame" class="browser-frame" src="https://www.google.com" allowpopups style="flex:1;height:100%;"></webview>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider" id="divider"></div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel" id="chat-panel">
+      <div class="chat-header">
+        <span class="chat-title">🤖 Klaw Chat</span>
+        <button class="chat-toggle" onclick="toggleChat()">Hide ✕</button>
+      </div>
+      <webview id="chat-frame" class="chat-frame" allowpopups style="flex:1;height:100%;"></webview>
+    </div>
+  </div>
+
+  <!-- Page Info -->
+  <div class="page-info">
+    <span id="page-status">Ready</span>
+    <span id="page-url"></span>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    const browserFrame = document.getElementById('browser-frame');
+    const chatFrame = document.getElementById('chat-frame');
+    const urlInput = document.getElementById('url-input');
+    const loadingBar = document.getElementById('loading-bar');
+    const chatPanel = document.getElementById('chat-panel');
+    let chatVisible = true;
+
+    // ── Init ──
+    function init() {
+      // Load chat URL
+      var chatUrl = 'http://localhost:19789/';
+      try {
+        var token = ipcRenderer.sendSync('get-gateway-token-sync');
+        if (token) chatUrl = 'http://localhost:19789/?token=' + token;
+      } catch(e) {
+        console.error('Token fetch failed:', e);
+      }
+      console.log('[Browser] Chat URL:', chatUrl);
+      chatFrame.setAttribute('src', chatUrl);
+
+      // Browser frame events
+      browserFrame.addEventListener('did-start-loading', () => {
+        loadingBar.className = 'loading-bar active';
+        document.getElementById('page-status').textContent = 'Loading...';
+      });
+
+      browserFrame.addEventListener('did-stop-loading', () => {
+        loadingBar.className = 'loading-bar done';
+        document.getElementById('page-status').textContent = 'Ready';
+        setTimeout(() => { loadingBar.className = 'loading-bar'; }, 500);
+      });
+
+      browserFrame.addEventListener('did-navigate', (e) => {
+        urlInput.value = e.url;
+        document.getElementById('page-url').textContent = e.url;
+        updateNavButtons();
+      });
+
+      browserFrame.addEventListener('did-navigate-in-page', (e) => {
+        urlInput.value = e.url;
+      });
+
+      browserFrame.addEventListener('page-title-updated', function(e) {
+        document.title = e.title + ' — Klaw Browser';
+      });
+    }
+
+    // ── Navigation ──
+    function navigate(url) {
+      if (!url) return;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        if (url.includes('.') && !url.includes(' ')) {
+          url = 'https://' + url;
+        } else {
+          url = 'https://www.google.com/search?q=' + encodeURIComponent(url);
+        }
+      }
+      browserFrame.src = url;
+      urlInput.value = url;
+    }
+
+    function goBack() { if (browserFrame.canGoBack()) browserFrame.goBack(); }
+    function goForward() { if (browserFrame.canGoForward()) browserFrame.goForward(); }
+    function reload() { browserFrame.reload(); }
+    function goHome() { navigate('https://www.google.com'); }
+
+    function updateNavButtons() {
+      document.getElementById('btn-back').disabled = !browserFrame.canGoBack();
+      document.getElementById('btn-fwd').disabled = !browserFrame.canGoForward();
+    }
+
+    // ── URL Bar ──
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        navigate(urlInput.value.trim());
+      }
+    });
+
+    urlInput.addEventListener('focus', () => urlInput.select());
+
+    // ── Chat Toggle ──
+    function toggleChat() {
+      chatVisible = !chatVisible;
+      chatPanel.style.display = chatVisible ? 'flex' : 'none';
+      document.getElementById('divider').style.display = chatVisible ? 'block' : 'none';
+    }
+
+    // ── Ask AI about page ──
+    async function askAI() {
+      try {
+        var pageTitle = browserFrame.getTitle();
+        var pageUrl = browserFrame.getURL();
+        var text = await browserFrame.executeJavaScript('document.body.innerText.substring(0, 3000)');
+        var prompt = 'Analyze this webpage:\n\nTitle: ' + pageTitle + '\nURL: ' + pageUrl + '\n\nContent:\n' + text.substring(0, 2000) + '\n\nPlease summarize the key points.';
+        sendToChat(prompt);
+      } catch (e) {
+        console.error('Ask AI failed:', e);
+        alert('Ask AI failed: ' + e.message);
+      }
+    }
+
+    // ── Screenshot ──
+    function screenshot() {
+      ipcRenderer.send('quick-action', { type: 'screen-vision', query: '' });
+    }
+
+    // ── Command Bar ──
+    function showCommandBar() {
+      document.getElementById('command-overlay').classList.add('open');
+      setTimeout(function() { document.getElementById('command-input').focus(); }, 100);
+    }
+    function hideCommandBar() {
+      document.getElementById('command-overlay').classList.remove('open');
+    }
+    function setCommand(text) {
+      document.getElementById('command-input').value = text;
+      document.getElementById('command-input').focus();
+    }
+
+    var cmdInput = document.getElementById('command-input');
+    if (cmdInput) {
+      cmdInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') runCommand();
+        if (e.key === 'Escape') hideCommandBar();
+      });
+    }
+
+    async function runCommand() {
+      var input = document.getElementById('command-input');
+      var command = input.value.trim();
+      if (!command) return;
+
+      var runBtn = document.querySelector('.cmd-run');
+      runBtn.disabled = true;
+      runBtn.textContent = '⏳ Running...';
+
+      try {
+        var js = commandToJS(command);
+        var result = await browserFrame.executeJavaScript(js);
+        hideCommandBar();
+        if (result) {
+          var resultStr = (typeof result === 'string') ? result : JSON.stringify(result, null, 2);
+          sendToChat('Browser command: "' + command + '"\n\nResult:\n' + resultStr);
+        }
+      } catch (e) {
+        console.error('Command failed:', e);
+        alert('Command failed: ' + e.message);
+      } finally {
+        runBtn.disabled = false;
+        runBtn.textContent = '▶ Run Command';
+      }
+    }
+
+    function commandToJS(command) {
+      var cmd = command.toLowerCase();
+
+      if (cmd.includes('fill') && (cmd.includes('form') || cmd.includes('field') || cmd.includes('input') || cmd.includes('name') || cmd.includes('email'))) {
+        var pairs = {};
+        var nm = command.match(/name[:\s]+([^\s,]+)/i);
+        var em = command.match(/email[:\s]+([^\s,]+)/i);
+        var ph = command.match(/phone[:\s]+([^\s,]+)/i);
+        var pw = command.match(/password[:\s]+([^\s,]+)/i);
+        if (nm) pairs.name = nm[1];
+        if (em) pairs.email = em[1];
+        if (ph) pairs.phone = ph[1];
+        if (pw) pairs.password = pw[1];
+        var pairsJson = JSON.stringify(pairs);
+        return '(function(){var pairs=' + pairsJson + ';var inputs=document.querySelectorAll("input,textarea,select");var filled=0;inputs.forEach(function(el){var type=(el.type||"").toLowerCase();var name=(el.name||el.id||el.placeholder||"").toLowerCase();if(pairs.name&&(name.includes("name")||name.includes("user")||name.includes("first"))){el.value=pairs.name;el.dispatchEvent(new Event("input",{bubbles:true}));filled++}if(pairs.email&&(name.includes("email")||name.includes("mail")||type==="email")){el.value=pairs.email;el.dispatchEvent(new Event("input",{bubbles:true}));filled++}if(pairs.phone&&(name.includes("phone")||name.includes("tel")||type==="tel")){el.value=pairs.phone;el.dispatchEvent(new Event("input",{bubbles:true}));filled++}if(pairs.password&&(type==="password"||name.includes("pass"))){el.value=pairs.password;el.dispatchEvent(new Event("input",{bubbles:true}));filled++}});return "Filled "+filled+" fields out of "+inputs.length+" inputs"})()';
+      }
+
+      if (cmd.includes('click')) {
+        var target = command.replace(/click\s*(the\s*)?/i, '').trim();
+        return '(function(){var buttons=[].slice.call(document.querySelectorAll("button,a,input[type=submit],input[type=button],[role=button]"));var target="' + target.replace(/"/g, '\\"') + '".toLowerCase();var found=buttons.find(function(b){return(b.textContent||b.value||"").toLowerCase().includes(target)});if(found){found.click();return "Clicked: "+(found.textContent||found.value||found.tagName)}return "Button not found: "+target})()';
+      }
+
+      if (cmd.includes('link')) {
+        return '(function(){var links=[].slice.call(document.querySelectorAll("a[href]")).map(function(a){return{text:a.textContent.trim().substring(0,80),href:a.href}}).filter(function(l){return l.text&&l.href.indexOf("http")===0});return JSON.stringify(links.slice(0,50),null,2)})()';
+      }
+
+      if (cmd.includes('image')) {
+        return '(function(){var imgs=[].slice.call(document.querySelectorAll("img[src]")).map(function(img){return{alt:img.alt||"",src:img.src,size:img.naturalWidth+"x"+img.naturalHeight}}).filter(function(i){return i.src.indexOf("http")===0});return JSON.stringify(imgs.slice(0,30),null,2)})()';
+      }
+
+      if (cmd.includes('scroll')) {
+        if (cmd.includes('bottom') || cmd.includes('down')) return 'window.scrollTo(0,document.body.scrollHeight);"Scrolled to bottom"';
+        if (cmd.includes('top') || cmd.includes('up')) return 'window.scrollTo(0,0);"Scrolled to top"';
+        return 'window.scrollBy(0,500);"Scrolled down"';
+      }
+
+      if (cmd.includes('read') || cmd.includes('article') || cmd.includes('text') || cmd.includes('content')) {
+        return '(function(){var el=document.querySelector("article")||document.querySelector("main")||document.querySelector(".content")||document.body;return el.innerText.substring(0,5000)})()';
+      }
+
+      if (cmd.includes('price') || cmd.includes('cost') || cmd.includes('amount')) {
+        return '(function(){var text=document.body.innerText;var prices=text.match(/[\\$\\€\\£\\₹][\\d,]+\\.?\\d*/g)||[];return prices.length?"Prices found: "+prices.join(", "):"No prices found on this page"})()';
+      }
+
+      return '(function(){return document.body.innerText.substring(0,3000)})()';
+    }
+
+    // ── Scrape Page ──
+    var scrapeData = {};
+
+    async function scrapePage() {
+      document.getElementById('scrape-overlay').classList.add('open');
+      document.getElementById('scrape-content').textContent = 'Extracting page data...';
+
+      try {
+        scrapeData.text = await browserFrame.executeJavaScript('document.body.innerText.substring(0,10000)');
+        scrapeData.links = await browserFrame.executeJavaScript('JSON.stringify([].slice.call(document.querySelectorAll("a[href]")).map(function(a){return{text:a.textContent.trim().substring(0,80),href:a.href}}).filter(function(l){return l.text&&l.href.indexOf("http")===0}).slice(0,100))');
+        scrapeData.images = await browserFrame.executeJavaScript('JSON.stringify([].slice.call(document.querySelectorAll("img[src]")).map(function(img){return{alt:img.alt||"",src:img.src,size:img.naturalWidth+"x"+img.naturalHeight}}).filter(function(i){return i.src.indexOf("http")===0}).slice(0,50))');
+        scrapeData.forms = await browserFrame.executeJavaScript('JSON.stringify([].slice.call(document.querySelectorAll("form")).map(function(f,i){return{id:f.id||"form-"+i,action:f.action,method:f.method,fields:[].slice.call(f.querySelectorAll("input,select,textarea")).map(function(el){return{type:el.type||el.tagName.toLowerCase(),name:el.name||el.id||"",placeholder:el.placeholder||""}})}}))');
+        scrapeData.meta = await browserFrame.executeJavaScript('JSON.stringify({title:document.title,url:location.href,description:(document.querySelector("meta[name=description]")||{}).content||"",h1:[].slice.call(document.querySelectorAll("h1")).map(function(h){return h.textContent.trim()}).join(", "),h2:[].slice.call(document.querySelectorAll("h2")).map(function(h){return h.textContent.trim()}).slice(0,10).join(", ")})');
+        showScrapeTab('text');
+      } catch (e) {
+        document.getElementById('scrape-content').textContent = 'Error: ' + e.message;
+      }
+    }
+
+    function showScrapeTab(tab) {
+      document.querySelectorAll('.scrape-tab').forEach(function(t) { t.classList.remove('active'); });
+      var activeTab = document.querySelector('.scrape-tab[onclick*="' + tab + '"]');
+      if (activeTab) activeTab.classList.add('active');
+
+      var content = document.getElementById('scrape-content');
+      if (tab === 'text') content.textContent = scrapeData.text || 'No text';
+      else if (tab === 'links') content.textContent = scrapeData.links || '[]';
+      else if (tab === 'images') content.textContent = scrapeData.images || '[]';
+      else if (tab === 'forms') content.textContent = scrapeData.forms || '[]';
+      else if (tab === 'meta') content.textContent = scrapeData.meta || '{}';
+    }
+
+    function hideScrape() {
+      document.getElementById('scrape-overlay').classList.remove('open');
+    }
+
+    function copyScrape() {
+      var text = document.getElementById('scrape-content').textContent;
+      navigator.clipboard.writeText(text);
+      alert('Copied to clipboard!');
+    }
+
+    function sendScrapeToAI() {
+      var text = document.getElementById('scrape-content').textContent;
+      sendToChat('Scraped page data:\n\n' + text.substring(0, 3000) + '\n\nPlease analyze this data.');
+      hideScrape();
+    }
+
+    // ── Send to Chat helper ──
+    function sendToChat(message) {
+      var escaped = JSON.stringify(message);
+      var js = '(function(){function inject(){var input=document.querySelector("textarea,input[type=text]");if(!input){setTimeout(inject,500);return}input.value=' + escaped + ';input.dispatchEvent(new Event("input",{bubbles:true}));setTimeout(function(){var btn=document.querySelector("button[type=submit]");if(btn)btn.click();else input.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",code:"Enter",keyCode:13,bubbles:true}))},300)}inject()})()';
+      chatFrame.executeJavaScript(js).catch(function(e) { console.error('Send to chat failed:', e); });
+      if (!chatVisible) toggleChat();
+    }
+
+    // ── Divider Drag ──
+    const divider = document.getElementById('divider');
+    let isDragging = false;
+    divider.addEventListener('mousedown', () => { isDragging = true; });
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const containerWidth = document.querySelector('.split-container').offsetWidth;
+      const chatWidth = containerWidth - e.clientX - 4;
+      if (chatWidth > 250 && chatWidth < containerWidth - 300) {
+        chatPanel.style.width = chatWidth + 'px';
+      }
+    });
+    document.addEventListener('mouseup', () => { isDragging = false; });
+
+    // Boot
+    init();
+  </script>
+</body>
+</html>
+

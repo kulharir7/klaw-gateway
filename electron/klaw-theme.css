@@ -1,0 +1,541 @@
+/* ═══════════════════════════════════════════════════════════
+   Klaw Custom Theme — Not OpenClaw, Not a Copy, 100% Ours
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Dark Theme Override ─────────────────────────────────── */
+:root {
+  /* Core brand: Deep ocean blue + electric cyan accent */
+  --bg: #0a0e17;
+  --bg-accent: #0d1220;
+  --bg-elevated: #131a2b;
+  --bg-hover: #1a2340;
+  --bg-muted: #1a2340;
+  --card: #111827;
+  --card-foreground: #e2e8f0;
+  --card-highlight: rgba(56, 189, 248, 0.05);
+  --popover: #111827;
+  --popover-foreground: #e2e8f0;
+  --panel: #0a0e17;
+  --panel-strong: #131a2b;
+  --panel-hover: #1a2340;
+  --chrome: rgba(10, 14, 23, 0.95);
+  --chrome-strong: rgba(10, 14, 23, 0.98);
+
+  /* Text */
+  --text: #cbd5e1;
+  --text-strong: #f1f5f9;
+  --chat-text: #e2e8f0;
+  --muted: #64748b;
+  --muted-strong: #475569;
+  --muted-foreground: #64748b;
+
+  /* Borders */
+  --border: #1e293b;
+  --border-strong: #334155;
+  --border-hover: #475569;
+  --input: #1e293b;
+
+  /* Accent: Electric cyan-blue */
+  --ring: #38bdf8;
+  --accent: #38bdf8;
+  --accent-hover: #7dd3fc;
+  --accent-muted: #38bdf8;
+  --accent-subtle: rgba(56, 189, 248, 0.12);
+  --accent-foreground: #0a0e17;
+  --accent-glow: rgba(56, 189, 248, 0.2);
+  --primary: #38bdf8;
+  --primary-foreground: #0a0e17;
+
+  /* Secondary */
+  --secondary: #131a2b;
+  --secondary-foreground: #e2e8f0;
+
+  /* Accent 2: Emerald */
+  --accent-2: #34d399;
+  --accent-2-muted: rgba(52, 211, 153, 0.7);
+  --accent-2-subtle: rgba(52, 211, 153, 0.12);
+
+  /* Status colors */
+  --ok: #34d399;
+  --ok-muted: rgba(52, 211, 153, 0.75);
+  --ok-subtle: rgba(52, 211, 153, 0.1);
+  --destructive: #f87171;
+  --destructive-foreground: #fafafa;
+  --warn: #fbbf24;
+  --warn-muted: rgba(251, 191, 36, 0.75);
+  --warn-subtle: rgba(251, 191, 36, 0.1);
+  --danger: #f87171;
+  --danger-muted: rgba(248, 113, 113, 0.75);
+  --danger-subtle: rgba(248, 113, 113, 0.1);
+  --info: #60a5fa;
+  --focus: rgba(56, 189, 248, 0.2);
+
+  /* Shadows with blue tint */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(56, 189, 248, 0.03);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(56, 189, 248, 0.03);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(56, 189, 248, 0.03);
+  --shadow-glow: 0 0 30px var(--accent-glow);
+
+  /* Glow pulse animation — cyan instead of red */
+  --grid-line: rgba(56, 189, 248, 0.03);
+
+  /* Font: Inter for a cleaner, more modern feel */
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Light Theme Override ────────────────────────────────── */
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-accent: #f1f5f9;
+  --bg-elevated: #ffffff;
+  --bg-hover: #e2e8f0;
+  --bg-muted: #e2e8f0;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+  --panel: #f8fafc;
+  --panel-strong: #f1f5f9;
+  --panel-hover: #e2e8f0;
+  --chrome: rgba(248, 250, 252, 0.95);
+  --chrome-strong: rgba(248, 250, 252, 0.98);
+  --text: #475569;
+  --text-strong: #0f172a;
+  --chat-text: #334155;
+  --muted: #94a3b8;
+  --muted-strong: #64748b;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-hover: #94a3b8;
+  --input: #e2e8f0;
+  --accent: #0284c7;
+  --accent-hover: #0ea5e9;
+  --accent-muted: #0284c7;
+  --accent-subtle: rgba(2, 132, 199, 0.1);
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(2, 132, 199, 0.12);
+  --primary: #0284c7;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #475569;
+  --accent-2: #059669;
+  --ok: #059669;
+  --destructive: #dc2626;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --info: #2563eb;
+}
+
+/* ── Import Inter Font ───────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Topbar Branding ─────────────────────────────────────── */
+.topbar {
+  background: linear-gradient(135deg, var(--bg) 0%, rgba(56, 189, 248, 0.03) 100%) !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.1) !important;
+}
+
+/* ── Sidebar Styling ─────────────────────────────────────── */
+.nav {
+  background: linear-gradient(180deg, var(--bg) 0%, rgba(56, 189, 248, 0.02) 100%) !important;
+  border-right: 1px solid rgba(56, 189, 248, 0.08) !important;
+}
+
+/* ── Chat Messages — Distinct Bubble Style ───────────────── */
+/* Assistant messages: subtle blue-tinted background */
+[class*="message"][class*="assistant"],
+[class*="bubble"][class*="assistant"],
+[data-role="assistant"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.06) 0%, rgba(52, 211, 153, 0.04) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.08) !important;
+  border-radius: 16px 16px 16px 4px !important;
+}
+
+/* User messages: solid accent background */
+[class*="message"][class*="user"],
+[class*="bubble"][class*="user"],
+[data-role="user"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.08) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.12) !important;
+  border-radius: 16px 16px 4px 16px !important;
+}
+
+/* ── Input Area ──────────────────────────────────────────── */
+textarea,
+[class*="input"],
+[class*="composer"] textarea {
+  border-radius: 12px !important;
+}
+
+/* ── Buttons — Cyan glow on hover ────────────────────────── */
+button[class*="primary"],
+[class*="btn-primary"] {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%) !important;
+  border: none !important;
+  color: #0a0e17 !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+button[class*="primary"]:hover,
+[class*="btn-primary"]:hover {
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── Scrollbar — Themed ──────────────────────────────────── */
+::-webkit-scrollbar-thumb {
+  background: #1e293b !important;
+  border-radius: 10px !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155 !important;
+}
+
+/* ── Selection ───────────────────────────────────────────── */
+::selection {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: var(--text-strong) !important;
+}
+
+/* ── Glow Pulse animation fix ────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 transparent; }
+  50% { box-shadow: 0 0 20px rgba(56, 189, 248, 0.25); }
+}
+
+/* ── Code blocks — deeper background ─────────────────────── */
+pre, code, [class*="code-block"] {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(56, 189, 248, 0.06) !important;
+  border-radius: 8px !important;
+}
+
+/* ── Hide OpenClaw branding if any ───────────────────────── */
+[class*="openclaw" i],
+[class*="OpenClaw" i],
+[title*="OpenClaw" i],
+img[alt*="OpenClaw" i],
+img[alt*="openclaw" i] {
+  display: none !important;
+}
+
+/* ── Sidebar Overhaul ────────────────────────────────────── */
+/* Hide sidebar sections we don't need for Klaw */
+/* Hide Control section items except Overview */
+.nav [href*="channels"],
+.nav [href*="instances"],
+.nav a[href*="channel"],
+.nav a[href*="instance"] {
+  display: none !important;
+}
+
+/* Style the active sidebar item — cyan glow */
+.nav a[aria-current="page"],
+.nav [class*="active"],
+.nav [data-active="true"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.05)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+  border-radius: 10px !important;
+}
+
+/* Sidebar section headers — subtle */
+.nav [class*="section-title"],
+.nav [class*="group-label"],
+.nav [class*="category"] {
+  text-transform: uppercase !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+  color: #475569 !important;
+}
+
+/* Sidebar hover */
+.nav a:hover,
+.nav [class*="item"]:hover {
+  background: rgba(56, 189, 248, 0.06) !important;
+  border-radius: 10px !important;
+}
+
+/* ── Topbar — Klaw Branding ───────────────────────────── */
+/* Hide "GATEWAY DASHBOARD" subtitle — topbar only, very specific */
+.topbar-left small,
+.topbar-left > span > small {
+  display: none !important;
+}
+
+/* ── Send Button — Cyan ──────────────────────────────────── */
+button[class*="send"],
+[class*="composer"] button[class*="primary"],
+[class*="send-button"] {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
+  color: #0a0e17 !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+/* ── Health Badge — Cyan ─────────────────────────────────── */
+[class*="health"] {
+  color: #34d399 !important;
+}
+
+/* ── User Avatar — Blue gradient instead of red ──────────── */
+[class*="avatar"][class*="user"],
+[class*="avatar-user"] {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
+}
+
+/* ── Page Title ──────────────────────────────────────────── */
+.content h1, .content h2 {
+  color: var(--text-strong) !important;
+  font-weight: 700 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SMOOTH CHAT BOX
+   ═══════════════════════════════════════════════════════════ */
+
+/* Chat input area — glass morphism style */
+[class*="composer"],
+[class*="chat-input"],
+[class*="message-input"] {
+  background: rgba(19, 26, 43, 0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(56, 189, 248, 0.1) !important;
+  border-radius: 16px !important;
+  padding: 4px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+[class*="composer"]:focus-within,
+[class*="chat-input"]:focus-within,
+[class*="message-input"]:focus-within {
+  border-color: rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), 0 0 20px rgba(56, 189, 248, 0.08) !important;
+}
+
+/* Textarea inside composer */
+[class*="composer"] textarea,
+[class*="chat-input"] textarea {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  padding: 12px 16px !important;
+  resize: none !important;
+  border-radius: 12px !important;
+}
+
+[class*="composer"] textarea::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Send button — pill shape with glow */
+[class*="composer"] button[class*="send"],
+[class*="composer"] button[class*="primary"],
+button[class*="send"] {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
+  color: #0a0e17 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  padding: 8px 20px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2) !important;
+}
+
+[class*="composer"] button[class*="send"]:hover,
+button[class*="send"]:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35) !important;
+}
+
+/* New session button */
+button[class*="new-session"],
+button[class*="secondary"] {
+  border-radius: 12px !important;
+  border: 1px solid rgba(56, 189, 248, 0.15) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHAT MESSAGES — Smooth Bubbles
+   ═══════════════════════════════════════════════════════════ */
+
+/* All message containers */
+[class*="message-row"],
+[class*="msg-row"] {
+  transition: opacity 0.2s ease !important;
+}
+
+/* Assistant bubble — smooth glass */
+[class*="message"][class*="assistant"] [class*="bubble"],
+[class*="message"][class*="assistant"] [class*="content"],
+[data-role="assistant"] [class*="bubble"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(52, 211, 153, 0.04)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.1) !important;
+  border-radius: 18px 18px 18px 6px !important;
+  padding: 14px 18px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* User bubble — distinct blue */
+[class*="message"][class*="user"] [class*="bubble"],
+[class*="message"][class*="user"] [class*="content"],
+[data-role="user"] [class*="bubble"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(14, 165, 233, 0.1)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.15) !important;
+  border-radius: 18px 18px 6px 18px !important;
+  padding: 14px 18px !important;
+  box-shadow: 0 2px 12px rgba(56, 189, 248, 0.06) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR ICONS — Custom colors & style
+   ═══════════════════════════════════════════════════════════ */
+
+/* Make all sidebar SVG icons — modern minimal style */
+.nav svg,
+nav svg {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 1.8px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Active item icons — bright cyan with glow */
+.nav a[aria-current="page"] svg,
+.nav [class*="active"] svg,
+.nav [data-active="true"] svg {
+  color: #38bdf8 !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4)) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Hover icons — lift + brighten */
+.nav a:hover svg {
+  color: #7dd3fc !important;
+  opacity: 1 !important;
+  transform: scale(1.08) !important;
+}
+
+/* Sidebar items — spacing and padding */
+.nav a,
+nav a {
+  padding: 9px 14px !important;
+  margin: 2px 8px !important;
+  border-radius: 10px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  color: #94a3b8 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* Active item — glass highlight */
+.nav a[aria-current="page"],
+.nav [class*="active"],
+.nav [data-active="true"] {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(56, 189, 248, 0.04)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.15) !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.06) !important;
+}
+
+/* Hover — subtle lift */
+.nav a:hover {
+  background: rgba(56, 189, 248, 0.06) !important;
+  color: #e2e8f0 !important;
+}
+
+/* Section headers — modern uppercase */
+.nav [class*="section-title"],
+.nav [class*="group-label"],
+.nav [class*="category"],
+.nav [class*="heading"],
+.nav span[class*="label"] {
+  text-transform: uppercase !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  color: #38bdf8 !important;
+  opacity: 0.5 !important;
+  padding: 16px 14px 6px !important;
+  margin: 0 8px !important;
+}
+
+/* Sidebar dividers — barely visible */
+.nav hr,
+.nav [class*="divider"],
+.nav [class*="separator"] {
+  border-color: rgba(56, 189, 248, 0.04) !important;
+  margin: 4px 16px !important;
+}
+
+/* Sidebar background */
+nav, .nav {
+  background: linear-gradient(180deg, #0a0e17 0%, #0d1220 100%) !important;
+  border-right: 1px solid rgba(56, 189, 248, 0.06) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOPBAR — Polished
+   ═══════════════════════════════════════════════════════════ */
+
+/* Topbar logo icon — cyan tint */
+.topbar svg,
+.topbar-left svg {
+  color: #38bdf8 !important;
+}
+
+/* Topbar buttons */
+.topbar button {
+  border-radius: 10px !important;
+  transition: all 0.15s ease !important;
+}
+
+.topbar button:hover {
+  background: rgba(56, 189, 248, 0.08) !important;
+}
+
+/* Health badge — green glow */
+[class*="health"][class*="ok"],
+[class*="health"][class*="connected"] {
+  color: #34d399 !important;
+  text-shadow: 0 0 8px rgba(52, 211, 153, 0.3) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SMOOTH TRANSITIONS — Buttery feel (targeted, not global)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Smooth page transitions */
+.content {
+  animation: smoothFadeIn 0.3s ease !important;
+}
+
+@keyframes smoothFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Smooth scrolling */
+.content,
+[class*="messages"],
+[class*="chat-scroll"] {
+  scroll-behavior: smooth !important;
+}
+
+

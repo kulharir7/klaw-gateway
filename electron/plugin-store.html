@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaw — Plugin Store</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e5e5e5;
+      overflow-x: hidden;
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: #111118;
+      border-bottom: 1px solid #1e1e2e;
+      -webkit-app-region: drag;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo { font-size: 20px; }
+    .topbar-title { font-size: 18px; font-weight: 700; color: #fff; }
+    .topbar-subtitle { font-size: 12px; color: #888; margin-left: 8px; }
+    .btn-back {
+      -webkit-app-region: no-drag;
+      background: #1e1e2e;
+      border: 1px solid #2a2a3a;
+      color: #ccc;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .btn-back:hover { background: #2a2a3a; color: #fff; }
+
+    /* ── Layout ── */
+    .main {
+      display: flex;
+      height: calc(100vh - 61px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      background: #111118;
+      border-right: 1px solid #1e1e2e;
+      padding: 16px 0;
+      flex-shrink: 0;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      color: #999;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+    .sidebar-item:hover { background: #1a1a25; color: #e5e5e5; }
+    .sidebar-item.active { background: #1e1e2e; color: #fff; border-right: 3px solid #7c3aed; }
+    .sidebar-item .icon { font-size: 16px; width: 24px; text-align: center; }
+    .sidebar-item .badge {
+      margin-left: auto;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .sidebar-divider {
+      height: 1px;
+      background: #1e1e2e;
+      margin: 12px 20px;
+    }
+    .sidebar-label {
+      padding: 8px 20px 4px;
+      font-size: 11px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    /* ── Search ── */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: #111118;
+      border: 1px solid #2a2a3a;
+      border-radius: 12px;
+      padding: 0 16px;
+      margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+    .search-bar:focus-within { border-color: #7c3aed; }
+    .search-icon { color: #555; font-size: 16px; margin-right: 10px; }
+    .search-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #e5e5e5;
+      font-size: 14px;
+      padding: 12px 0;
+      outline: none;
+    }
+    .search-bar input::placeholder { color: #555; }
+    .search-count { color: #555; font-size: 12px; white-space: nowrap; }
+
+    /* ── Plugin Grid ── */
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .plugin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    /* ── Plugin Card ── */
+    .plugin-card {
+      background: #111118;
+      border: 1px solid #1e1e2e;
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .plugin-card:hover { border-color: #2a2a3a; transform: translateY(-2px); }
+    .plugin-card.installed { border-color: #22c55e33; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .card-icon {
+      font-size: 28px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a25;
+      border-radius: 12px;
+      flex-shrink: 0;
+      font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
+    }
+    .card-info { flex: 1; min-width: 0; }
+    .card-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+    .card-author { font-size: 12px; color: #666; }
+    .card-desc {
+      font-size: 13px;
+      color: #999;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      background: #1a1a25;
+      color: #888;
+      border-radius: 6px;
+    }
+    .card-source {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .source-builtin { background: #7c3aed22; color: #a78bfa; }
+    .source-official { background: #3b82f622; color: #60a5fa; }
+    .source-community { background: #f59e0b22; color: #fbbf24; }
+
+    /* ── Action Buttons ── */
+    .btn-install {
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-install:hover { background: #6d28d9; transform: scale(1.02); }
+    .btn-install:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-install.installing {
+      background: #4a4a5a;
+      cursor: wait;
+    }
+    .btn-uninstall {
+      background: transparent;
+      color: #ef4444;
+      border: 1px solid #ef444433;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-uninstall:hover { background: #ef444422; }
+    .btn-installed {
+      background: #22c55e22;
+      color: #22c55e;
+      border: 1px solid #22c55e33;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: default;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── Plugin Detail Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #111118;
+      border: 1px solid #2a2a3a;
+      border-radius: 16px;
+      width: 560px;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 32px;
+    }
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .modal-close:hover { color: #fff; }
+    .modal-icon { font-size: 48px; margin-bottom: 16px; }
+    .modal-name { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .modal-author { font-size: 13px; color: #666; margin-bottom: 16px; }
+    .modal-desc { font-size: 14px; color: #ccc; line-height: 1.6; margin-bottom: 20px; }
+    .modal-section { margin-bottom: 16px; }
+    .modal-section-title { font-size: 13px; color: #888; margin-bottom: 8px; font-weight: 600; }
+
+    .env-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .env-item code {
+      background: #1a1a25;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #a78bfa;
+    }
+    .env-item input {
+      flex: 1;
+      background: #0a0a0f;
+      border: 1px solid #2a2a3a;
+      color: #e5e5e5;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+    .env-item input:focus { border-color: #7c3aed; }
+    .env-link {
+      font-size: 12px;
+      color: #7c3aed;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .env-link:hover { text-decoration: underline; }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .modal-actions .btn-install { padding: 10px 28px; font-size: 14px; }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #555;
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state .title { font-size: 18px; color: #888; margin-bottom: 8px; }
+    .empty-state .desc { font-size: 14px; }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #111118;
+      border-top: 1px solid #1e1e2e;
+      padding: 8px 24px;
+      font-size: 12px;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 60px;
+      right: 24px;
+      background: #22c55e;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 200;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">🧩</span>
+      <span class="topbar-title">Plugin Store</span>
+      <span class="topbar-subtitle">Extend Klaw with plugins</span>
+    </div>
+    <button class="btn-back" onclick="goBack()">← Back to Chat</button>
+  </div>
+
+  <div class="main">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-item active" onclick="filterCategory('all')" data-cat="all">
+        <span class="icon">🏠</span> All Plugins
+        <span class="badge" id="total-count">0</span>
+      </div>
+      <div class="sidebar-item" onclick="filterCategory('installed')" data-cat="installed">
+        <span class="icon">✅</span> Installed
+        <span class="badge" id="installed-count">0</span>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-label">Categories</div>
+      <div class="sidebar-item" onclick="filterCategory('coding')" data-cat="coding">
+        <span class="icon">💻</span> Coding & Dev
+      </div>
+      <div class="sidebar-item" onclick="filterCategory('productivity')" data-cat="productivity">
+        <span class="icon">⚡</span> Productivity
+      </div>
+      <div class="sidebar-item" onclick="filterCategory('data')" data-cat="data">
+        <span class="icon">📊</span> Data & Databases
+      </div>
+      <div class="sidebar-item" onclick="filterCategory('integrations')" data-cat="integrations">
+        <span class="icon">🔗</span> Integrations
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Search -->
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search plugins..." oninput="handleSearch()">
+        <span class="search-count" id="search-count"></span>
+      </div>
+
+      <!-- Plugin Grid -->
+      <div id="plugin-container"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="icon">🔍</div>
+        <div class="title">No plugins found</div>
+        <div class="desc">Try a different search term or category</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modal-content"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span id="status-left">Ready</span>
+    <span id="status-right">Klaw Plugin Store v1.0</span>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    let registry = { plugins: [], categories: [] };
+    let installedPlugins = {};
+    let currentCategory = 'all';
+    let searchQuery = '';
+
+    // ── Init ──
+    async function init() {
+      try {
+        registry = await ipcRenderer.invoke('plugin-get-registry');
+        installedPlugins = await ipcRenderer.invoke('plugin-get-installed');
+      } catch (e) {
+        console.error('Failed to load registry:', e);
+      }
+      updateCounts();
+      renderPlugins();
+    }
+
+    // ── Render ──
+    function renderPlugins() {
+      const container = document.getElementById('plugin-container');
+      let plugins = registry.plugins || [];
+
+      // Filter by category
+      if (currentCategory === 'installed') {
+        plugins = plugins.filter(p => installedPlugins[p.id]);
+      } else if (currentCategory !== 'all') {
+        plugins = plugins.filter(p => p.category === currentCategory);
+      }
+
+      // Filter by search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        plugins = plugins.filter(p =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          (p.tags || []).some(t => t.includes(q))
+        );
+      }
+
+      document.getElementById('search-count').textContent = `${plugins.length} plugin${plugins.length !== 1 ? 's' : ''}`;
+      document.getElementById('empty-state').style.display = plugins.length === 0 ? 'block' : 'none';
+
+      // Group by source
+      const builtin = plugins.filter(p => p.source === 'builtin');
+      const official = plugins.filter(p => p.source === 'official');
+      const community = plugins.filter(p => p.source === 'community');
+
+      let html = '';
+      if (builtin.length) html += renderSection('Built-in', '🔧', builtin);
+      if (official.length) html += renderSection('Official', '⭐', official);
+      if (community.length) html += renderSection('Community', '🌍', community);
+
+      // If filtering installed, just show flat
+      if (currentCategory === 'installed') {
+        html = renderSection('Installed Plugins', '✅', plugins);
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderSection(title, icon, plugins) {
+      return `
+        <div class="section-title">${icon} ${title}</div>
+        <div class="plugin-grid">
+          ${plugins.map(p => renderCard(p)).join('')}
+        </div>
+      `;
+    }
+
+    function renderCard(plugin) {
+      const isInstalled = !!installedPlugins[plugin.id];
+      const sourceClass = `source-${plugin.source}`;
+      const tags = (plugin.tags || []).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
+
+      return `
+        <div class="plugin-card ${isInstalled ? 'installed' : ''}" onclick="openDetail('${plugin.id}')">
+          <div class="card-header">
+            <div class="card-icon">${plugin.icon}</div>
+            <div class="card-info">
+              <div class="card-name">${plugin.name}</div>
+              <div class="card-author">by ${plugin.author} · v${plugin.version}</div>
+            </div>
+            <span class="card-source ${sourceClass}">${plugin.source}</span>
+          </div>
+          <div class="card-desc">${plugin.description}</div>
+          <div class="card-footer">
+            <div class="card-tags">${tags}</div>
+            <div class="card-actions">
+              ${isInstalled
+                ? `<button class="btn-uninstall" onclick="event.stopPropagation();uninstallPlugin('${plugin.id}')">Uninstall</button>`
+                : `<button class="btn-install" onclick="event.stopPropagation();installPlugin('${plugin.id}')">Install</button>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Detail Modal ──
+    function openDetail(id) {
+      const plugin = registry.plugins.find(p => p.id === id);
+      if (!plugin) return;
+
+      const isInstalled = !!installedPlugins[id];
+      const envHtml = (plugin.requiredEnv || []).length > 0
+        ? `<div class="modal-section">
+            <div class="modal-section-title">Required Configuration</div>
+            ${plugin.requiredEnv.map(env => `
+              <div class="env-item">
+                <code>${env}</code>
+                <input type="text" id="env-${env}" placeholder="Enter value..." value="${getEnvValue(env)}">
+              </div>
+            `).join('')}
+            ${plugin.setupUrl ? `<a class="env-link" onclick="openExt('${plugin.setupUrl}')">Get credentials →</a>` : ''}
+          </div>`
+        : '';
+
+      document.getElementById('modal-content').innerHTML = `
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-icon">${plugin.icon}</div>
+        <div class="modal-name">${plugin.name}</div>
+        <div class="modal-author">by ${plugin.author} · v${plugin.version} · ${plugin.source}</div>
+        <div class="modal-desc">${plugin.description}</div>
+        ${envHtml}
+        <div class="modal-section">
+          <div class="modal-section-title">Tags</div>
+          <div class="card-tags">${(plugin.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        </div>
+        <div class="modal-actions">
+          ${isInstalled
+            ? `<button class="btn-uninstall" onclick="uninstallPlugin('${id}')">Uninstall</button>`
+            : `<button class="btn-install" id="modal-install-btn" onclick="installFromModal('${id}')">Install Plugin</button>`
+          }
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+    }
+
+    // ── Install / Uninstall ──
+    async function installPlugin(id) {
+      const plugin = registry.plugins.find(p => p.id === id);
+      if (!plugin) return;
+
+      // If requires env, open detail modal
+      if ((plugin.requiredEnv || []).length > 0 && !installedPlugins[id]) {
+        openDetail(id);
+        return;
+      }
+
+      await doInstall(id, {});
+    }
+
+    async function installFromModal(id) {
+      const plugin = registry.plugins.find(p => p.id === id);
+      if (!plugin) return;
+
+      // Gather env values from modal
+      const envValues = {};
+      for (const env of (plugin.requiredEnv || [])) {
+        const input = document.getElementById(`env-${env}`);
+        if (input && input.value.trim()) {
+          envValues[env] = input.value.trim();
+        }
+      }
+
+      await doInstall(id, envValues);
+    }
+
+    async function doInstall(id, envValues) {
+      const btn = document.querySelector(`[onclick*="installPlugin('${id}')"]`) ||
+                  document.getElementById('modal-install-btn');
+      if (btn) { btn.textContent = 'Installing...'; btn.classList.add('installing'); btn.disabled = true; }
+
+      try {
+        await ipcRenderer.invoke('plugin-install', id, envValues);
+        installedPlugins[id] = true;
+        showToast(`✅ ${registry.plugins.find(p => p.id === id)?.name || id} installed!`);
+        closeModal();
+        updateCounts();
+        renderPlugins();
+      } catch (e) {
+        showToast(`❌ Install failed: ${e.message}`, true);
+        if (btn) { btn.textContent = 'Install'; btn.classList.remove('installing'); btn.disabled = false; }
+      }
+    }
+
+    async function uninstallPlugin(id) {
+      try {
+        await ipcRenderer.invoke('plugin-uninstall', id);
+        delete installedPlugins[id];
+        showToast(`🗑️ ${registry.plugins.find(p => p.id === id)?.name || id} removed`);
+        closeModal();
+        updateCounts();
+        renderPlugins();
+      } catch (e) {
+        showToast(`❌ Uninstall failed: ${e.message}`, true);
+      }
+    }
+
+    // ── Helpers ──
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.sidebar-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.cat === cat);
+      });
+      renderPlugins();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('search-input').value;
+      renderPlugins();
+    }
+
+    function updateCounts() {
+      document.getElementById('total-count').textContent = registry.plugins?.length || 0;
+      document.getElementById('installed-count').textContent = Object.keys(installedPlugins).length;
+    }
+
+    function getEnvValue(key) {
+      return ''; // TODO: load from config
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => { toast.className = 'toast'; }, 3000);
+    }
+
+    function goBack() { ipcRenderer.send('open-chat'); }
+    function openExt(url) { ipcRenderer.send('open-external', url); }
+
+    // Boot
+    init();
+  </script>
+</body>
+</html>
+

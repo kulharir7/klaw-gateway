@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaw</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0e17;
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      -webkit-app-region: drag;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(40px, 40px); }
+    }
+
+    /* Glow orb behind logo */
+    .glow-orb {
+      position: fixed;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+      animation: orbPulse 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    /* Logo */
+    .logo {
+      font-family: 'Inter', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+      letter-spacing: -2px;
+      animation: logoIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, #38bdf8, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @keyframes logoIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #475569;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      animation: fadeIn 0.6s 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Terminal box */
+    .terminal {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.1);
+      border-radius: 12px;
+      padding: 20px 28px;
+      min-width: 420px;
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.8;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 60px rgba(56, 189, 248, 0.03);
+      animation: termIn 0.5s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+
+    @keyframes termIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .terminal-header {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.06);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot.red { background: #f87171; }
+    .dot.yellow { background: #fbbf24; }
+    .dot.green { background: #34d399; }
+
+    .line {
+      opacity: 0;
+      animation: lineIn 0.3s ease forwards;
+    }
+
+    @keyframes lineIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .prompt { color: #34d399; }
+    .cmd { color: #e2e8f0; }
+    .info { color: #64748b; }
+    .ok { color: #34d399; }
+    .accent { color: #38bdf8; }
+    .warn { color: #fbbf24; }
+
+    /* Cursor blink */
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: #38bdf8;
+      margin-left: 4px;
+      animation: blink 0.8s step-end infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      margin-top: 20px;
+      height: 3px;
+      background: rgba(56, 189, 248, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      animation: fadeIn 0.5s 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #34d399);
+      border-radius: 2px;
+      width: 0%;
+      animation: progressGrow 8s 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes progressGrow {
+      0% { width: 0%; }
+      20% { width: 30%; }
+      50% { width: 55%; }
+      70% { width: 75%; }
+      90% { width: 88%; }
+      100% { width: 95%; }
+    }
+
+    /* Version tag */
+    .version {
+      position: fixed;
+      bottom: 20px;
+      right: 24px;
+      font-size: 11px;
+      color: #334155;
+      letter-spacing: 0.05em;
+      animation: fadeIn 1s 1.5s ease forwards;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-orb"></div>
+  <div class="container">
+    <div class="logo">Root <span>AI</span></div>
+    <div class="subtitle">AI Desktop Agent</div>
+
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div id="lines"></div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+  <div class="version">v0.5.1</div>
+
+  <script>
+    const lines = [
+      { delay: 300,  text: '<span class="prompt">$</span> <span class="cmd">root-ai init</span>' },
+      { delay: 800,  text: '<span class="info">  Loading configuration...</span>' },
+      { delay: 1400, text: '<span class="ok">  ✓</span> <span class="info">Config loaded</span>' },
+      { delay: 2000, text: '<span class="prompt">$</span> <span class="cmd">gateway start --port 19789</span>' },
+      { delay: 2800, text: '<span class="info">  Starting AI gateway...</span>' },
+      { delay: 3600, text: '<span class="ok">  ✓</span> <span class="info">Gateway listening on</span> <span class="accent">ws://127.0.0.1:19789</span>' },
+      { delay: 4400, text: '<span class="ok">  ✓</span> <span class="info">Agent model:</span> <span class="accent">claude-opus-4</span>' },
+      { delay: 5000, text: '<span class="ok">  ✓</span> <span class="info">Computer Use:</span> <span class="ok">ready</span>' },
+      { delay: 5600, text: '<span class="ok">  ✓</span> <span class="info">Security vault:</span> <span class="ok">active</span>' },
+      { delay: 6200, text: '<span class="prompt">$</span> <span class="cmd">Launching Klaw...</span> <span class="cursor"></span>' },
+    ];
+
+    const container = document.getElementById('lines');
+    lines.forEach(({ delay, text }) => {
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.className = 'line';
+        div.style.animationDelay = '0s';
+        div.innerHTML = text;
+        container.appendChild(div);
+      }, delay);
+    });
+  </script>
+</body>
+</html>
+

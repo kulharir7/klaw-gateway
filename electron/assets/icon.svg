@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0e17"/>
+      <stop offset="100%" style="stop-color:#131a2b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="eye" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#38bdf8"/>
+      <stop offset="100%" style="stop-color:#34d399"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  
+  <!-- Subtle border -->
+  <rect x="2" y="2" width="508" height="508" rx="106" fill="none" stroke="url(#accent)" stroke-width="3" opacity="0.2"/>
+  
+  <!-- Raven head silhouette - stylized, minimal -->
+  <g filter="url(#glow)" transform="translate(256,240)">
+    <!-- Head shape -->
+    <path d="M-10,-140 C60,-140 110,-100 120,-40 C125,-10 120,20 100,50 L80,50 C95,25 98,0 95,-30 C90,-80 55,-110 -10,-110 C-75,-110 -110,-80 -115,-30 C-118,0 -115,25 -100,50 L-120,50 C-140,20 -145,-10 -140,-40 C-130,-100 -80,-140 -10,-140 Z" fill="url(#accent)"/>
+    
+    <!-- Beak - sharp, pointing right-down -->
+    <path d="M100,50 L180,110 L140,120 L80,60 Z" fill="url(#accent)"/>
+    <path d="M140,120 L120,140 L80,60 L140,120 Z" fill="#6d28d9" opacity="0.6"/>
+    
+    <!-- Eye - glowing -->
+    <circle cx="40" cy="-20" r="18" fill="url(#eye)"/>
+    <circle cx="40" cy="-20" r="8" fill="#0a0e17"/>
+    <circle cx="44" cy="-24" r="4" fill="#fff" opacity="0.8"/>
+    
+    <!-- Crown feathers -->
+    <path d="M-60,-130 L-40,-180 L-20,-125" fill="url(#accent)" opacity="0.7"/>
+    <path d="M-20,-135 L10,-190 L30,-125" fill="url(#accent)" opacity="0.6"/>
+    <path d="M30,-130 L60,-175 L70,-115" fill="url(#accent)" opacity="0.5"/>
+  </g>
+  
+  <!-- "K" letter below - small, subtle -->
+  <g opacity="0.4">
+    <text x="256" y="450" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="700" fill="url(#accent)">K</text>
+  </g>
+</svg>

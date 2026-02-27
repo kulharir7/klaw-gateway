@@ -8,6 +8,11 @@
     "url": "https://github.com/openclaw/openclaw/issues"
   },
   "license": "MIT",
+  "build": {
+    "directories": {
+      "output": "release"
+    }
+  },
   "author": "Ravindra Kumar",
   "repository": {
     "type": "git",
@@ -16,10 +21,7 @@
   "bin": {
     "klaw": "openclaw.mjs"
   },
-  "directories": {
-    "doc": "docs",
-    "test": "test"
-  },
+
   "files": [
     "CHANGELOG.md",
     "LICENSE",
@@ -143,6 +145,8 @@
     "test:watch": "vitest",
     "tui": "node scripts/run-node.mjs tui",
     "tui:dev": "OPENCLAW_PROFILE=dev CLAWDBOT_PROFILE=dev node scripts/run-node.mjs --dev tui",
+    "electron:dev": "electron electron/main.cjs",
+    "electron:build": "electron-builder --win",
     "ui:build": "node scripts/ui.js build",
     "ui:dev": "node scripts/ui.js dev",
     "ui:install": "node scripts/ui.js install"
@@ -214,6 +218,9 @@
     "@types/ws": "^8.18.1",
     "@typescript/native-preview": "7.0.0-dev.20260225.1",
     "@vitest/coverage-v8": "^4.0.18",
+    "electron": "^40.6.1",
+    "electron-builder": "^26.8.1",
+    "electron-updater": "^6.8.3",
     "lit": "^3.3.2",
     "oxfmt": "0.35.0",
     "oxlint": "^1.50.0",

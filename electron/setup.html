@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaw — Setup</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f13;
+      color: #e5e5e5;
+      min-height: 100vh;
+      -webkit-app-region: drag;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      -webkit-app-region: no-drag;
+    }
+
+    /* Logo */
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo svg { width: 64px; height: 64px; }
+    .logo h1 {
+      font-size: 26px; font-weight: 700; margin-top: 10px;
+      background: linear-gradient(135deg, #7c3aed, #6366f1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo p { color: #888; font-size: 13px; margin-top: 4px; }
+
+    /* Steps */
+    .step { display: none; animation: fadeIn 0.3s ease; }
+    .step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .step-indicator {
+      display: flex; justify-content: center; gap: 8px; margin-bottom: 24px;
+    }
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #2a2a3a; transition: all 0.3s;
+    }
+    .step-dot.active { background: #7c3aed; width: 24px; border-radius: 4px; }
+    .step-dot.done { background: #22c55e; }
+
+    .step-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; text-align: center; }
+    .step-desc { color: #888; font-size: 13px; text-align: center; margin-bottom: 20px; }
+
+    /* Provider grid */
+    .providers { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .provider-card {
+      background: #1a1a24; border: 2px solid #2a2a3a; border-radius: 10px;
+      padding: 14px 10px; cursor: pointer; transition: all 0.2s; text-align: center;
+    }
+    .provider-card:hover { border-color: #7c3aed; background: #1f1f2e; }
+    .provider-card.selected { border-color: #7c3aed; background: #1f1f2e; box-shadow: 0 0 0 1px #7c3aed; }
+    .provider-card .icon { font-size: 28px; margin-bottom: 6px; }
+    .provider-card .name { font-weight: 600; font-size: 13px; }
+    .provider-card .desc { color: #777; font-size: 11px; margin-top: 2px; line-height: 1.3; }
+    .provider-card .price { color: #7c3aed; font-size: 10px; margin-top: 3px; font-weight: 500; }
+
+    /* Section headers */
+    .section-label {
+      font-size: 11px; text-transform: uppercase; color: #666; letter-spacing: 1px;
+      margin: 16px 0 8px; font-weight: 600;
+    }
+
+    /* Input fields */
+    .input-group { margin-bottom: 14px; }
+    .input-group label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; font-weight: 500; }
+    .input-group input, .input-group select {
+      width: 100%; padding: 10px 14px; background: #1a1a24; border: 2px solid #2a2a3a;
+      border-radius: 8px; color: #e5e5e5; font-size: 13px; outline: none; transition: border-color 0.2s;
+    }
+    .input-group input:focus, .input-group select:focus { border-color: #7c3aed; }
+    .input-group input::placeholder { color: #555; }
+    .input-group .hint { font-size: 11px; color: #555; margin-top: 3px; }
+    .input-group .hint a { color: #7c3aed; text-decoration: none; cursor: pointer; }
+
+    /* Toggle */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #1a1a24; border: 1px solid #2a2a3a; border-radius: 8px;
+      padding: 10px 14px; margin-bottom: 10px;
+    }
+    .toggle-row .label { font-size: 13px; }
+    .toggle-row .sublabel { font-size: 11px; color: #666; }
+    .toggle {
+      width: 40px; height: 22px; background: #2a2a3a; border-radius: 11px;
+      cursor: pointer; position: relative; transition: background 0.2s;
+    }
+    .toggle.on { background: #7c3aed; }
+    .toggle::after {
+      content: ''; position: absolute; width: 18px; height: 18px; background: white;
+      border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(18px); }
+
+    /* Info box */
+    .info-box {
+      background: #1a1a24; border: 1px solid #2a2a3a; border-radius: 8px;
+      padding: 12px; font-size: 12px; color: #999; margin-bottom: 14px; line-height: 1.5;
+    }
+    .info-box strong { color: #ccc; }
+    .info-box code { background: #2a2a3a; padding: 1px 5px; border-radius: 3px; color: #7c3aed; font-size: 11px; }
+    .info-box a { color: #7c3aed; text-decoration: none; cursor: pointer; }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 8px; margin-top: 16px; }
+    .btn {
+      flex: 1; padding: 12px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #6366f1); color: white;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-secondary { background: #1a1a24; color: #aaa; border: 1px solid #2a2a3a; }
+    .btn-secondary:hover { border-color: #7c3aed; color: #e5e5e5; }
+    .btn-ghost { background: transparent; color: #666; font-size: 12px; }
+    .btn-ghost:hover { color: #aaa; }
+
+    /* Channel cards */
+    .channel-card {
+      display: flex; align-items: center; gap: 12px;
+      background: #1a1a24; border: 1px solid #2a2a3a; border-radius: 8px;
+      padding: 10px 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+    }
+    .channel-card:hover { border-color: #7c3aed; }
+    .channel-card.enabled { border-color: #22c55e; background: #1a2420; }
+    .channel-card .ch-icon { font-size: 22px; width: 32px; text-align: center; }
+    .channel-card .ch-info { flex: 1; }
+    .channel-card .ch-name { font-size: 13px; font-weight: 600; }
+    .channel-card .ch-desc { font-size: 11px; color: #666; }
+    .channel-card .ch-badge {
+      font-size: 10px; padding: 2px 8px; border-radius: 4px;
+      background: #22c55e20; color: #22c55e; font-weight: 600;
+    }
+
+    /* Channel config panel */
+    .ch-config {
+      background: #14141c; border: 1px solid #2a2a3a; border-radius: 8px;
+      padding: 14px; margin-bottom: 10px; display: none;
+    }
+    .ch-config.open { display: block; }
+
+    /* Status */
+    .status { text-align: center; padding: 30px; }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid #2a2a3a; border-top-color: #7c3aed;
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f0f13; }
+    ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo -->
+    <div class="logo">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#7c3aed"/><stop offset="50%" style="stop-color:#6366f1"/><stop offset="100%" style="stop-color:#4f46e5"/></linearGradient></defs>
+        <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bg)"/>
+        <g fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round"><path d="M140,180 L220,256 L140,332" stroke-width="36" opacity="0.9"/><line x1="250" y1="332" x2="380" y2="332" stroke-width="36" opacity="0.9"/></g>
+      </svg>
+      <h1>Klaw</h1>
+      <p>Setup Wizard</p>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="step-indicator">
+      <div class="step-dot active" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+      <div class="step-dot" data-step="4"></div>
+      <div class="step-dot" data-step="5"></div>
+    </div>
+
+    <!--========== STEP 1: AI Provider ==========-->
+    <div class="step active" id="step1">
+      <div class="step-title">Choose AI Provider</div>
+      <div class="step-desc">Pick how Klaw talks to language models</div>
+
+      <div class="section-label">☁️ Cloud Providers (API Key)</div>
+      <div class="providers">
+        <div class="provider-card" data-provider="anthropic">
+          <div class="icon">🧠</div>
+          <div class="name">Anthropic</div>
+          <div class="desc">Claude Opus 4.6, Sonnet 4.5, Haiku 3.5</div>
+          <div class="price">$3–15/1M tokens</div>
+        </div>
+        <div class="provider-card" data-provider="anthropic-token">
+          <div class="icon">🔑</div>
+          <div class="name">Claude Code Token</div>
+          <div class="desc">Anthropic setup-token (from Claude CLI)</div>
+          <div class="price">Subscription</div>
+        </div>
+        <div class="provider-card" data-provider="openai">
+          <div class="icon">💚</div>
+          <div class="name">OpenAI</div>
+          <div class="desc">GPT-5.2, GPT-4o, o1</div>
+          <div class="price">$2.50–15/1M tokens</div>
+        </div>
+        <div class="provider-card" data-provider="openai-codex">
+          <div class="icon">💻</div>
+          <div class="name">OpenAI Codex</div>
+          <div class="desc">ChatGPT OAuth (GPT-5.3 Codex)</div>
+          <div class="price">ChatGPT subscription</div>
+        </div>
+        <div class="provider-card" data-provider="opencode">
+          <div class="icon">📝</div>
+          <div class="name">OpenCode Zen</div>
+          <div class="desc">Claude via OpenCode API</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="google">
+          <div class="icon">🔷</div>
+          <div class="name">Google Gemini</div>
+          <div class="desc">Gemini 3 Pro, Flash</div>
+          <div class="price">Free tier available</div>
+        </div>
+        <div class="provider-card" data-provider="google-vertex">
+          <div class="icon">☁️</div>
+          <div class="name">Google Vertex AI</div>
+          <div class="desc">GCP managed Gemini + Claude</div>
+          <div class="price">GCP pricing</div>
+        </div>
+        <div class="provider-card" data-provider="openrouter">
+          <div class="icon">🔀</div>
+          <div class="name">OpenRouter</div>
+          <div class="desc">All models, one key</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="xai">
+          <div class="icon">𝕏</div>
+          <div class="name">xAI</div>
+          <div class="desc">Grok 2</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="mistral">
+          <div class="icon">🌊</div>
+          <div class="name">Mistral</div>
+          <div class="desc">Mistral Large, Codestral</div>
+          <div class="price">$2–8/1M tokens</div>
+        </div>
+        <div class="provider-card" data-provider="groq">
+          <div class="icon">⚡</div>
+          <div class="name">Groq</div>
+          <div class="desc">Ultra-fast Llama, Mixtral</div>
+          <div class="price">Free tier available</div>
+        </div>
+        <div class="provider-card" data-provider="together">
+          <div class="icon">🤝</div>
+          <div class="name">Together AI</div>
+          <div class="desc">Llama 3.1 405B, Mixtral</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="huggingface">
+          <div class="icon">🤗</div>
+          <div class="name">Hugging Face</div>
+          <div class="desc">DeepSeek R1, Llama, etc.</div>
+          <div class="price">Free + paid</div>
+        </div>
+        <div class="provider-card" data-provider="venice">
+          <div class="icon">🎭</div>
+          <div class="name">Venice AI</div>
+          <div class="desc">Privacy-first, Llama + Opus</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="cerebras">
+          <div class="icon">🔮</div>
+          <div class="name">Cerebras</div>
+          <div class="desc">Ultra-fast inference</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="nvidia">
+          <div class="icon">🟢</div>
+          <div class="name">NVIDIA NIM</div>
+          <div class="desc">Nemotron endpoints</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="zai">
+          <div class="icon">🇨🇳</div>
+          <div class="name">Z.AI (GLM)</div>
+          <div class="desc">GLM-4.7 models</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="moonshot">
+          <div class="icon">🌙</div>
+          <div class="name">Moonshot (Kimi)</div>
+          <div class="desc">Kimi K2.5, Coding</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="synthetic">
+          <div class="icon">🧪</div>
+          <div class="name">Synthetic</div>
+          <div class="desc">MiniMax M2.1 + more</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="minimax">
+          <div class="icon">🔸</div>
+          <div class="name">MiniMax</div>
+          <div class="desc">MiniMax M2.1</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="qwen">
+          <div class="icon">🟣</div>
+          <div class="name">Qwen (OAuth)</div>
+          <div class="desc">Qwen Coder + Vision (free)</div>
+          <div class="price">Free (OAuth)</div>
+        </div>
+      </div>
+
+      <div class="section-label">🖥️ Local / Self-Hosted (Free)</div>
+      <div class="providers">
+        <div class="provider-card" data-provider="ollama">
+          <div class="icon">🦙</div>
+          <div class="name">Ollama (Local)</div>
+          <div class="desc">Local models, auto-detect</div>
+          <div class="price">Free (your hardware)</div>
+        </div>
+        <div class="provider-card" data-provider="ollama-cloud">
+          <div class="icon">☁️</div>
+          <div class="name">Ollama Cloud</div>
+          <div class="desc">700B+ models via cloud API — no GPU needed</div>
+          <div class="price">Free API</div>
+        </div>
+        <div class="provider-card" data-provider="lmstudio">
+          <div class="icon">🎨</div>
+          <div class="name">LM Studio</div>
+          <div class="desc">GUI + local API</div>
+          <div class="price">Free</div>
+        </div>
+        <div class="provider-card" data-provider="vllm">
+          <div class="icon">🚀</div>
+          <div class="name">vLLM</div>
+          <div class="desc">Self-hosted serving</div>
+          <div class="price">Free (your GPU)</div>
+        </div>
+      </div>
+
+      <div class="section-label">🔧 Advanced / Proxy</div>
+      <div class="providers">
+        <div class="provider-card" data-provider="litellm">
+          <div class="icon">🔗</div>
+          <div class="name">LiteLLM</div>
+          <div class="desc">Unified proxy gateway</div>
+          <div class="price">Free (self-hosted)</div>
+        </div>
+        <div class="provider-card" data-provider="bedrock">
+          <div class="icon">☁️</div>
+          <div class="name">AWS Bedrock</div>
+          <div class="desc">AWS managed models</div>
+          <div class="price">AWS pricing</div>
+        </div>
+        <div class="provider-card" data-provider="github-copilot">
+          <div class="icon">🐙</div>
+          <div class="name">GitHub Copilot</div>
+          <div class="desc">Copilot token</div>
+          <div class="price">$10-19/mo</div>
+        </div>
+        <div class="provider-card" data-provider="vercel-ai">
+          <div class="icon">▲</div>
+          <div class="name">Vercel AI Gateway</div>
+          <div class="desc">Edge proxy</div>
+          <div class="price">Vercel pricing</div>
+        </div>
+        <div class="provider-card" data-provider="cloudflare-ai">
+          <div class="icon">🟠</div>
+          <div class="name">Cloudflare AI</div>
+          <div class="desc">Workers AI Gateway</div>
+          <div class="price">Pay per use</div>
+        </div>
+        <div class="provider-card" data-provider="custom">
+          <div class="icon">⚙️</div>
+          <div class="name">Custom</div>
+          <div class="desc">Any OpenAI/Anthropic compatible endpoint</div>
+          <div class="price">Your endpoint</div>
+        </div>
+      </div>
+    </div>
+
+    <!--========== STEP 2: Auth & Model ==========-->
+    <div class="step" id="step2">
+      <div class="step-title" id="step2-title">Configure Provider</div>
+      <div class="step-desc" id="step2-desc">Enter credentials and pick a model</div>
+
+      <div id="provider-config-area"></div>
+
+      <div class="input-group model-select">
+        <label>Default Model</label>
+        <select id="model-select"></select>
+      </div>
+
+      <div id="custom-model-group" class="input-group" style="display:none">
+        <label>Custom Model ID</label>
+        <input type="text" id="custom-model-id" placeholder="e.g. my-provider/model-name">
+        <div class="hint">Format: provider/model-name</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-primary" id="btn-next-2" onclick="goStep(3)">Next →</button>
+      </div>
+    </div>
+
+    <!--========== STEP 3: Identity ==========-->
+    <div class="step" id="step3">
+      <div class="step-title">Personalize Your Agent</div>
+      <div class="step-desc">Give your AI assistant a personality (optional)</div>
+
+      <div class="input-group">
+        <label>Agent Name</label>
+        <input type="text" id="agent-name" placeholder="Root" value="Root">
+      </div>
+      <div class="input-group">
+        <label>Theme / Personality</label>
+        <input type="text" id="agent-theme" placeholder="e.g. helpful assistant, witty developer">
+      </div>
+      <div class="input-group">
+        <label>Emoji</label>
+        <input type="text" id="agent-emoji" placeholder="🤖" value="🤖" style="width:60px">
+      </div>
+      <div class="input-group">
+        <label>Your Timezone</label>
+        <select id="timezone">
+          <option value="auto">Auto-detect</option>
+          <option value="America/New_York">US Eastern</option>
+          <option value="America/Chicago">US Central</option>
+          <option value="America/Denver">US Mountain</option>
+          <option value="America/Los_Angeles">US Pacific</option>
+          <option value="Europe/London">UK / London</option>
+          <option value="Europe/Berlin">Central Europe</option>
+          <option value="Asia/Kolkata" selected>India (IST)</option>
+          <option value="Asia/Shanghai">China</option>
+          <option value="Asia/Tokyo">Japan</option>
+          <option value="Australia/Sydney">Australia Eastern</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="goStep(4)">Next →</button>
+      </div>
+    </div>
+
+    <!--========== STEP 4: Channels ==========-->
+    <div class="step" id="step4">
+      <div class="step-title">Connect Channels</div>
+      <div class="step-desc">Chat from WhatsApp, Telegram, Discord, etc. (all optional)</div>
+
+      <div id="channel-telegram" class="channel-card" onclick="toggleChannel('telegram')">
+        <div class="ch-icon">✈️</div>
+        <div class="ch-info">
+          <div class="ch-name">Telegram</div>
+          <div class="ch-desc">Bot token from @BotFather</div>
+        </div>
+      </div>
+      <div id="config-telegram" class="ch-config">
+        <div class="input-group">
+          <label>Bot Token</label>
+          <input type="text" id="tg-token" placeholder="123456789:ABCdefGhIJKlmNoPQRstuVWXyz">
+          <div class="hint"><a onclick="openExt('https://t.me/botfather')">Get from @BotFather</a></div>
+        </div>
+        <div class="input-group">
+          <label>Allowed User IDs (comma separated, or * for all)</label>
+          <input type="text" id="tg-allow" placeholder="123456789, 987654321">
+        </div>
+      </div>
+
+      <div id="channel-whatsapp" class="channel-card" onclick="toggleChannel('whatsapp')">
+        <div class="ch-icon">💬</div>
+        <div class="ch-info">
+          <div class="ch-name">WhatsApp</div>
+          <div class="ch-desc">Via WhatsApp Web bridge</div>
+        </div>
+      </div>
+      <div id="config-whatsapp" class="ch-config">
+        <div class="input-group">
+          <label>Allowed Phone Numbers (comma separated)</label>
+          <input type="text" id="wa-allow" placeholder="+919876543210, +14155551234">
+          <div class="hint">Include country code with +</div>
+        </div>
+      </div>
+
+      <div id="channel-discord" class="channel-card" onclick="toggleChannel('discord')">
+        <div class="ch-icon">🎮</div>
+        <div class="ch-info">
+          <div class="ch-name">Discord</div>
+          <div class="ch-desc">Discord bot token</div>
+        </div>
+      </div>
+      <div id="config-discord" class="ch-config">
+        <div class="input-group">
+          <label>Bot Token</label>
+          <input type="text" id="dc-token" placeholder="MTIzNDU2Nzg5.Gh1jKl.abc123...">
+          <div class="hint"><a onclick="openExt('https://discord.com/developers/applications')">Discord Developer Portal</a></div>
+        </div>
+        <div class="input-group">
+          <label>Allowed DM Users (comma separated)</label>
+          <input type="text" id="dc-allow" placeholder="username1, username2">
+        </div>
+      </div>
+
+      <div id="channel-slack" class="channel-card" onclick="toggleChannel('slack')">
+        <div class="ch-icon">📋</div>
+        <div class="ch-info">
+          <div class="ch-name">Slack</div>
+          <div class="ch-desc">Slack Bot + App tokens</div>
+        </div>
+      </div>
+      <div id="config-slack" class="ch-config">
+        <div class="input-group">
+          <label>Bot Token (xoxb-...)</label>
+          <input type="text" id="sl-bot-token" placeholder="xoxb-...">
+        </div>
+        <div class="input-group">
+          <label>App Token (xapp-...)</label>
+          <input type="text" id="sl-app-token" placeholder="xapp-...">
+        </div>
+      </div>
+
+      <div id="channel-signal" class="channel-card" onclick="toggleChannel('signal')">
+        <div class="ch-icon">🔒</div>
+        <div class="ch-info">
+          <div class="ch-name">Signal</div>
+          <div class="ch-desc">Via signal-cli</div>
+        </div>
+      </div>
+      <div id="config-signal" class="ch-config">
+        <div class="input-group">
+          <label>Allowed Phone Numbers (comma separated)</label>
+          <input type="text" id="sig-allow" placeholder="+14155551234">
+        </div>
+      </div>
+
+      <div id="channel-googlechat" class="channel-card" onclick="toggleChannel('googlechat')">
+        <div class="ch-icon">💬</div>
+        <div class="ch-info">
+          <div class="ch-name">Google Chat</div>
+          <div class="ch-desc">Google Workspace bot</div>
+        </div>
+      </div>
+      <div id="config-googlechat" class="ch-config">
+        <div class="info-box">Requires Google Workspace admin setup. See docs for details.</div>
+      </div>
+
+      <div id="channel-msteams" class="channel-card" onclick="toggleChannel('msteams')">
+        <div class="ch-icon">🟦</div>
+        <div class="ch-info">
+          <div class="ch-name">Microsoft Teams</div>
+          <div class="ch-desc">Teams bot connector</div>
+        </div>
+      </div>
+      <div id="config-msteams" class="ch-config">
+        <div class="info-box">Requires Azure Bot registration. See docs for details.</div>
+      </div>
+
+      <div id="channel-irc" class="channel-card" onclick="toggleChannel('irc')">
+        <div class="ch-icon">📡</div>
+        <div class="ch-info">
+          <div class="ch-name">IRC</div>
+          <div class="ch-desc">Classic IRC bot</div>
+        </div>
+      </div>
+      <div id="config-irc" class="ch-config">
+        <div class="input-group">
+          <label>Server</label>
+          <input type="text" id="irc-server" placeholder="irc.libera.chat">
+        </div>
+        <div class="input-group">
+          <label>Channel</label>
+          <input type="text" id="irc-channel" placeholder="#mychannel">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-ghost" onclick="goStep(5)">Skip →</button>
+        <button class="btn btn-primary" onclick="goStep(5)">Next →</button>
+      </div>
+    </div>
+
+    <!--========== STEP 5: Advanced & Save ==========-->
+    <div class="step" id="step5">
+      <div class="step-title">Advanced Settings</div>
+      <div class="step-desc">Fine-tune your setup (all optional)</div>
+
+      <div class="toggle-row">
+        <div><div class="label">Web Search (Brave)</div><div class="sublabel">Let agent search the web</div></div>
+        <div class="toggle" id="toggle-brave" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div id="brave-config" class="ch-config">
+        <div class="input-group">
+          <label>Brave Search API Key</label>
+          <input type="text" id="brave-key" placeholder="BSA...">
+          <div class="hint"><a onclick="openExt('https://brave.com/search/api/')">Get free key</a></div>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div><div class="label">Heartbeat</div><div class="sublabel">Periodic check-ins (emails, calendar, etc.)</div></div>
+        <div class="toggle" id="toggle-heartbeat" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <div class="toggle-row">
+        <div><div class="label">Voice / TTS</div><div class="sublabel">Text-to-speech for voice messages</div></div>
+        <div class="toggle" id="toggle-voice" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <div class="toggle-row">
+        <div><div class="label">Browser Control</div><div class="sublabel">Let agent control a web browser</div></div>
+        <div class="toggle" id="toggle-browser" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <div class="toggle-row">
+        <div><div class="label">Cron Jobs</div><div class="sublabel">Scheduled tasks and reminders</div></div>
+        <div class="toggle on" id="toggle-cron" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <div class="toggle-row">
+        <div><div class="label">Sandbox (Docker)</div><div class="sublabel">Run code in isolated containers</div></div>
+        <div class="toggle" id="toggle-sandbox" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <div class="input-group" style="margin-top:14px">
+        <label>Gateway Port</label>
+        <input type="number" id="gateway-port" value="19789" min="1024" max="65535">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep(4)">← Back</button>
+        <button class="btn btn-primary" id="btn-save" onclick="saveConfig()">🚀 Launch Klaw</button>
+      </div>
+    </div>
+
+    <!--========== STEP 6: Saving ==========-->
+    <div class="step" id="step6">
+      <div class="status" id="save-status">
+        <div class="spinner"></div>
+        <div>Setting up Klaw...</div>
+        <div style="color:#555; font-size:12px; margin-top:8px" id="save-progress"></div>
+      </div>
+    </div>
+
+    <!--========== STEP 7: Done ==========-->
+    <div class="step" id="step7">
+      <div class="status">
+        <div class="icon">🎉</div>
+        <div class="step-title">You're all set!</div>
+        <p style="color:#888; margin: 12px 0 24px; font-size:13px">
+          Klaw is configured and ready to go.
+        </p>
+        <button class="btn btn-primary" style="max-width:300px; margin:0 auto" onclick="openChat()">Open Chat →</button>
+        <div style="margin-top:16px">
+          <button class="btn btn-ghost" onclick="openExt('https://github.com/kulharir7/root-ai')">📖 Documentation</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    // ══════════════════════════════════════════════════════
+    // PROVIDER DATABASE
+    // ══════════════════════════════════════════════════════
+    const PROVIDERS = {
+      // ── Cloud: Anthropic ──
+      anthropic: {
+        name: 'Anthropic (API Key)', envKey: 'ANTHROPIC_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'sk-ant-api03-...',
+        keyLink: 'https://console.anthropic.com/account/keys',
+        keyLabel: 'Anthropic API Key',
+        models: [
+          { value: 'anthropic/claude-opus-4-6', label: 'Claude Opus 4.6 (Best, Most Capable)' },
+          { value: 'anthropic/claude-sonnet-4-5', label: 'Claude Sonnet 4.5 (Recommended Balance)' },
+          { value: 'anthropic/claude-opus-4-5-20251101', label: 'Claude Opus 4.5 (Previous Best)' },
+          { value: 'anthropic/claude-haiku-3-5', label: 'Claude Haiku 3.5 (Fastest, Cheapest)' },
+        ],
+      },
+      'anthropic-token': {
+        name: 'Claude Code (Setup Token)', authType: 'setup-token',
+        keyPlaceholder: 'Paste your setup-token from Claude CLI...',
+        keyLabel: 'Claude Setup Token',
+        note: 'Run <code>claude setup-token</code> in terminal to get your token. This uses your Claude subscription (Max/Pro).',
+        models: [
+          { value: 'anthropic/claude-opus-4-6', label: 'Claude Opus 4.6 (Best)' },
+          { value: 'anthropic/claude-sonnet-4-5', label: 'Claude Sonnet 4.5' },
+          { value: 'anthropic/claude-opus-4-5-20251101', label: 'Claude Opus 4.5' },
+        ],
+      },
+      // ── Cloud: OpenAI ──
+      openai: {
+        name: 'OpenAI (API Key)', envKey: 'OPENAI_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'sk-...',
+        keyLink: 'https://platform.openai.com/api-keys',
+        keyLabel: 'OpenAI API Key',
+        models: [
+          { value: 'openai/gpt-5.2', label: 'GPT-5.2 (Latest, Best)' },
+          { value: 'openai/gpt-5.1-codex', label: 'GPT-5.1 Codex (Coding)' },
+          { value: 'openai/gpt-4o', label: 'GPT-4o (Reliable)' },
+          { value: 'openai/gpt-4o-mini', label: 'GPT-4o Mini (Fast, Cheap)' },
+          { value: 'openai/o1', label: 'o1 (Advanced Reasoning)' },
+        ],
+      },
+      'openai-codex': {
+        name: 'OpenAI Codex (ChatGPT OAuth)', authType: 'oauth-note',
+        note: 'Uses your ChatGPT Plus/Pro subscription. Run <code>openclaw onboard --auth-choice openai-codex</code> or <code>openclaw models auth login --provider openai-codex</code> to authenticate via browser.',
+        models: [
+          { value: 'openai-codex/gpt-5.3-codex', label: 'GPT-5.3 Codex (Latest)' },
+          { value: 'openai-codex/gpt-5.1-codex', label: 'GPT-5.1 Codex' },
+        ],
+      },
+      // ── Cloud: OpenCode Zen ──
+      opencode: {
+        name: 'OpenCode Zen', envKey: 'OPENCODE_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'ozen-...',
+        keyLink: 'https://opencode.ai',
+        keyLabel: 'OpenCode Zen API Key',
+        models: [
+          { value: 'opencode/claude-opus-4-6', label: 'Claude Opus 4.6 via OpenCode' },
+          { value: 'opencode/claude-sonnet-4-5', label: 'Claude Sonnet 4.5 via OpenCode' },
+        ],
+      },
+      // ── Cloud: Google ──
+      google: {
+        name: 'Google Gemini (API Key)', envKey: 'GEMINI_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'AIza...',
+        keyLink: 'https://aistudio.google.com/apikey',
+        keyLabel: 'Gemini API Key',
+        models: [
+          { value: 'google/gemini-3-pro-preview', label: 'Gemini 3 Pro (Latest, Best)' },
+          { value: 'google/gemini-3-flash-preview', label: 'Gemini 3 Flash (Fast)' },
+          { value: 'google/gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+          { value: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+        ],
+      },
+      'google-vertex': {
+        name: 'Google Vertex AI', authType: 'env-note',
+        note: 'Uses Google Cloud ADC (Application Default Credentials). Run <code>gcloud auth application-default login</code> first. Set <code>GOOGLE_CLOUD_PROJECT</code> env var.',
+        models: [
+          { value: 'google-vertex/gemini-3-pro-preview', label: 'Gemini 3 Pro (Vertex)' },
+          { value: 'google-vertex/claude-opus-4-6', label: 'Claude Opus 4.6 (Vertex)' },
+        ],
+      },
+      // ── Cloud: OpenRouter ──
+      openrouter: {
+        name: 'OpenRouter', envKey: 'OPENROUTER_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'sk-or-...',
+        keyLink: 'https://openrouter.ai/keys',
+        keyLabel: 'OpenRouter API Key',
+        models: [
+          { value: 'openrouter/anthropic/claude-opus-4-6', label: 'Claude Opus 4.6' },
+          { value: 'openrouter/anthropic/claude-sonnet-4-5', label: 'Claude Sonnet 4.5' },
+          { value: 'openrouter/openai/gpt-5.2', label: 'GPT-5.2' },
+          { value: 'openrouter/openai/gpt-4o', label: 'GPT-4o' },
+          { value: 'openrouter/google/gemini-3-pro-preview', label: 'Gemini 3 Pro' },
+          { value: 'openrouter/meta-llama/llama-3.1-405b', label: 'Llama 3.1 405B' },
+          { value: 'openrouter/deepseek/deepseek-r1', label: 'DeepSeek R1' },
+        ],
+      },
+      // ── Cloud: Others ──
+      xai: {
+        name: 'xAI', envKey: 'XAI_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'xai-...',
+        keyLink: 'https://console.x.ai/',
+        keyLabel: 'xAI API Key',
+        models: [
+          { value: 'xai/grok-2', label: 'Grok 2' },
+        ],
+      },
+      mistral: {
+        name: 'Mistral', envKey: 'MISTRAL_API_KEY', authType: 'apikey',
+        keyPlaceholder: '...',
+        keyLink: 'https://console.mistral.ai/api-keys/',
+        keyLabel: 'Mistral API Key',
+        models: [
+          { value: 'mistral/mistral-large-latest', label: 'Mistral Large (Latest)' },
+          { value: 'mistral/codestral-latest', label: 'Codestral (Coding)' },
+          { value: 'mistral/mistral-medium-latest', label: 'Mistral Medium' },
+        ],
+      },
+      groq: {
+        name: 'Groq', envKey: 'GROQ_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'gsk_...',
+        keyLink: 'https://console.groq.com/keys',
+        keyLabel: 'Groq API Key',
+        models: [
+          { value: 'groq/llama-3.3-70b-versatile', label: 'Llama 3.3 70B (Recommended)' },
+          { value: 'groq/llama-3.1-70b-versatile', label: 'Llama 3.1 70B' },
+          { value: 'groq/mixtral-8x7b-32768', label: 'Mixtral 8x7B' },
+        ],
+      },
+      together: {
+        name: 'Together AI', envKey: 'TOGETHER_API_KEY', authType: 'apikey',
+        keyPlaceholder: '...',
+        keyLink: 'https://api.together.xyz/settings/api-keys',
+        keyLabel: 'Together API Key',
+        models: [
+          { value: 'together/meta-llama/Llama-3.1-405B-Instruct-Turbo', label: 'Llama 3.1 405B Turbo' },
+          { value: 'together/deepseek-ai/DeepSeek-R1', label: 'DeepSeek R1' },
+          { value: 'together/mistralai/Mixtral-8x22B-Instruct-v0.1', label: 'Mixtral 8x22B' },
+        ],
+      },
+      huggingface: {
+        name: 'Hugging Face', envKey: 'HF_TOKEN', authType: 'apikey',
+        keyPlaceholder: 'hf_...',
+        keyLink: 'https://huggingface.co/settings/tokens',
+        keyLabel: 'Hugging Face Token',
+        models: [
+          { value: 'huggingface/deepseek-ai/DeepSeek-R1', label: 'DeepSeek R1' },
+          { value: 'huggingface/meta-llama/Llama-3.1-70B-Instruct', label: 'Llama 3.1 70B' },
+        ],
+      },
+      venice: {
+        name: 'Venice AI', envKey: 'VENICE_API_KEY', authType: 'apikey',
+        keyPlaceholder: '...',
+        keyLink: 'https://venice.ai/settings/api',
+        keyLabel: 'Venice API Key',
+        models: [
+          { value: 'venice/llama-3.3-70b', label: 'Llama 3.3 70B (Default)' },
+          { value: 'venice/claude-opus-45', label: 'Claude Opus 4.5 (via Venice)' },
+        ],
+      },
+      cerebras: {
+        name: 'Cerebras', envKey: 'CEREBRAS_API_KEY', authType: 'apikey',
+        keyPlaceholder: '...',
+        keyLink: 'https://cloud.cerebras.ai/',
+        keyLabel: 'Cerebras API Key',
+        models: [
+          { value: 'cerebras/llama3.3-70b', label: 'Llama 3.3 70B' },
+          { value: 'cerebras/llama3.1-70b', label: 'Llama 3.1 70B' },
+        ],
+      },
+      nvidia: {
+        name: 'NVIDIA NIM', envKey: 'NVIDIA_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'nvapi-...',
+        keyLink: 'https://build.nvidia.com/',
+        keyLabel: 'NVIDIA API Key',
+        models: [
+          { value: 'nvidia/llama-3.1-nemotron-70b-instruct', label: 'Nemotron 70B' },
+        ],
+      },
+      zai: {
+        name: 'Z.AI (GLM)', envKey: 'ZAI_API_KEY', authType: 'apikey',
+        keyPlaceholder: '...',
+        keyLink: 'https://open.bigmodel.cn/',
+        keyLabel: 'Z.AI API Key',
+        models: [
+          { value: 'zai/glm-4.7', label: 'GLM-4.7 (Latest)' },
+          { value: 'zai/glm-4.6', label: 'GLM-4.6' },
+        ],
+      },
+      moonshot: {
+        name: 'Moonshot (Kimi)', envKey: 'MOONSHOT_API_KEY', authType: 'custom-endpoint',
+        defaultBase: 'https://api.moonshot.ai/v1',
+        models: [
+          { value: 'moonshot/kimi-k2.5', label: 'Kimi K2.5 (Latest)' },
+          { value: 'moonshot/kimi-k2-thinking', label: 'Kimi K2 Thinking' },
+        ],
+      },
+      synthetic: {
+        name: 'Synthetic', envKey: 'SYNTHETIC_API_KEY', authType: 'custom-endpoint',
+        defaultBase: 'https://api.synthetic.new/anthropic',
+        models: [
+          { value: 'synthetic/hf:MiniMaxAI/MiniMax-M2.1', label: 'MiniMax M2.1' },
+        ],
+      },
+      minimax: {
+        name: 'MiniMax', envKey: 'MINIMAX_API_KEY', authType: 'custom-endpoint',
+        defaultBase: 'https://api.minimax.io/anthropic',
+        models: [
+          { value: 'minimax/MiniMax-M2.1', label: 'MiniMax M2.1' },
+        ],
+      },
+      qwen: {
+        name: 'Qwen (OAuth)', authType: 'oauth-note',
+        note: 'Qwen provides free OAuth access. Run:<br><code>openclaw plugins enable qwen-portal-auth</code><br><code>openclaw models auth login --provider qwen-portal --set-default</code>',
+        models: [
+          { value: 'qwen-portal/coder-model', label: 'Qwen Coder' },
+          { value: 'qwen-portal/vision-model', label: 'Qwen Vision' },
+        ],
+      },
+      // ── Local providers ──
+      ollama: {
+        name: 'Ollama', authType: 'local',
+        baseUrl: 'http://127.0.0.1:11434',
+        models: [
+          { value: 'ollama/llama3.3', label: 'Llama 3.3 (Recommended)' },
+          { value: 'ollama/llama3.1', label: 'Llama 3.1 8B' },
+          { value: 'ollama/gpt-oss:20b', label: 'GPT-OSS 20B' },
+          { value: 'ollama/qwen2.5-coder:32b', label: 'Qwen 2.5 Coder 32B' },
+          { value: 'ollama/deepseek-r1:32b', label: 'DeepSeek R1 32B (Reasoning)' },
+          { value: 'ollama/mistral', label: 'Mistral 7B' },
+          { value: 'ollama/codellama', label: 'Code Llama' },
+          { value: 'ollama/gemma2', label: 'Gemma 2' },
+        ],
+      },
+      'ollama-cloud': {
+        name: 'Ollama Cloud', envKey: 'OLLAMA_API_KEY', authType: 'apikey',
+        keyPlaceholder: 'Paste your Ollama API key...',
+        keyLink: 'https://ollama.com/settings/keys',
+        keyLabel: 'Ollama Cloud API Key',
+        note: 'Access 700B+ parameter models for free via Ollama Cloud API. Sign up at <a onclick="openExt(\'https://ollama.com\')">ollama.com</a>.',
+        models: [
+          { value: 'ollama-cloud/qwen3.5', label: '⭐ Qwen 3.5 (397B, Vision+Language, Newest)' },
+          { value: 'ollama-cloud/glm-5', label: '⭐ GLM-5 (744B, Reasoning+Agentic)' },
+          { value: 'ollama-cloud/cogito-2.1:671b', label: '⭐ Cogito 2.1 671B (General Purpose)' },
+          { value: 'ollama-cloud/kimi-k2.5', label: 'Kimi K2.5 (Multimodal, Agentic, Vision)' },
+          { value: 'ollama-cloud/qwen3-coder-next', label: 'Qwen3 Coder Next (Coding, Agentic)' },
+          { value: 'ollama-cloud/qwen3-next:80b', label: 'Qwen3 Next 80B (Fast+Smart)' },
+          { value: 'ollama-cloud/minimax-m2.5', label: 'MiniMax M2.5 (Productivity)' },
+          { value: 'ollama-cloud/devstral-2:123b', label: 'Devstral 2 123B (Code, Multi-file)' },
+          { value: 'ollama-cloud/devstral-small-2:24b', label: 'Devstral Small 2 24B (Light Coding)' },
+          { value: 'ollama-cloud/deepseek-v3.2', label: 'DeepSeek V3.2 (Reasoning)' },
+          { value: 'ollama-cloud/glm-4.7', label: 'GLM 4.7 (Coding)' },
+          { value: 'ollama-cloud/gemini-3-flash-preview', label: 'Gemini 3 Flash (Fast)' },
+          { value: 'ollama-cloud/qwen3-vl:235b', label: 'Qwen3 VL 235B (Vision+Tools+Thinking)' },
+          { value: 'ollama-cloud/nemotron-3-nano:30b', label: 'Nemotron 3 Nano 30B (Thinking)' },
+          { value: 'ollama-cloud/ministral-3:14b', label: 'Ministral 3 14B (Edge/Light)' },
+        ],
+      },
+      lmstudio: {
+        name: 'LM Studio', authType: 'local-url',
+        defaultBase: 'http://127.0.0.1:1234/v1',
+        models: [
+          { value: 'lmstudio/default', label: 'Currently loaded model' },
+        ],
+      },
+      vllm: {
+        name: 'vLLM', authType: 'local-url',
+        defaultBase: 'http://127.0.0.1:8000/v1',
+        models: [
+          { value: 'vllm/default', label: 'Currently loaded model' },
+        ],
+      },
+      // ── Advanced / Proxy ──
+      litellm: {
+        name: 'LiteLLM', authType: 'custom-endpoint',
+        defaultBase: 'http://127.0.0.1:4000/v1',
+        models: [
+          { value: 'litellm/default', label: 'Proxy default model' },
+        ],
+      },
+      bedrock: {
+        name: 'AWS Bedrock', authType: 'env-note',
+        note: 'Requires AWS credentials: <code>aws configure</code> or env vars (<code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code>, <code>AWS_REGION</code>).',
+        models: [
+          { value: 'bedrock/anthropic.claude-opus-4-6', label: 'Claude Opus 4.6 (Bedrock)' },
+          { value: 'bedrock/anthropic.claude-sonnet-4-5', label: 'Claude Sonnet 4.5 (Bedrock)' },
+        ],
+      },
+      'github-copilot': {
+        name: 'GitHub Copilot', envKey: 'GITHUB_TOKEN', authType: 'apikey',
+        keyPlaceholder: 'ghp_... or GH_TOKEN',
+        keyLink: 'https://github.com/settings/tokens',
+        keyLabel: 'GitHub Token (with Copilot access)',
+        models: [
+          { value: 'github-copilot/gpt-4o', label: 'GPT-4o via Copilot' },
+        ],
+      },
+      'vercel-ai': {
+        name: 'Vercel AI Gateway', envKey: 'AI_GATEWAY_API_KEY', authType: 'apikey',
+        keyPlaceholder: '...',
+        keyLink: 'https://vercel.com/docs/ai-gateway',
+        keyLabel: 'AI Gateway API Key',
+        models: [
+          { value: 'vercel-ai-gateway/anthropic/claude-opus-4-6', label: 'Claude Opus 4.6 (Vercel)' },
+          { value: 'vercel-ai-gateway/anthropic/claude-sonnet-4-5', label: 'Claude Sonnet 4.5 (Vercel)' },
+        ],
+      },
+      'cloudflare-ai': {
+        name: 'Cloudflare AI Gateway', authType: 'custom-endpoint',
+        defaultBase: '',
+        models: [
+          { value: 'cloudflare/default', label: 'Gateway default' },
+        ],
+      },
+      custom: {
+        name: 'Custom Endpoint', authType: 'custom-endpoint',
+        defaultBase: '',
+        models: [],
+      },
+    };
+
+    let selectedProvider = null;
+    let enabledChannels = {};
+    const totalSteps = 7;
+
+    // ══════════════════════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════════════════════
+    function goStep(n) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step' + n).classList.add('active');
+
+      // Update dots
+      document.querySelectorAll('.step-dot').forEach((dot, i) => {
+        dot.classList.remove('active', 'done');
+        if (i + 1 === n) dot.classList.add('active');
+        else if (i + 1 < n) dot.classList.add('done');
+      });
+
+      if (n === 2 && selectedProvider) setupStep2();
+    }
+
+    // ══════════════════════════════════════════════════════
+    // STEP 1: Provider selection
+    // ══════════════════════════════════════════════════════
+    document.querySelectorAll('.provider-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedProvider = card.dataset.provider;
+        goStep(2);
+      });
+    });
+
+    // ══════════════════════════════════════════════════════
+    // STEP 2: Dynamic config based on provider
+    // ══════════════════════════════════════════════════════
+    function setupStep2() {
+      const p = PROVIDERS[selectedProvider];
+      if (!p) return;
+
+      document.getElementById('step2-title').textContent = `Configure ${p.name}`;
+
+      const area = document.getElementById('provider-config-area');
+      area.innerHTML = '';
+
+      if (p.authType === 'apikey') {
+        area.innerHTML = `
+          <div class="input-group">
+            <label>${p.keyLabel || 'API Key'}</label>
+            <input type="password" id="api-key" placeholder="${p.keyPlaceholder || 'Enter key...'}" autocomplete="off" spellcheck="false">
+            <div class="hint">${p.keyLink ? `<a onclick="openExt('${p.keyLink}')">Get your key →</a>` : ''}</div>
+          </div>
+        `;
+        setTimeout(() => {
+          const input = document.getElementById('api-key');
+          input.focus();
+          input.oninput = () => { document.getElementById('btn-next-2').disabled = !input.value.trim(); };
+          document.getElementById('btn-next-2').disabled = true;
+        }, 100);
+
+      } else if (p.authType === 'local') {
+        area.innerHTML = `
+          <div class="info-box">
+            <strong>Ollama Setup:</strong><br>
+            1. Download & install from <a onclick="openExt('https://ollama.ai')">ollama.ai</a><br>
+            2. Pull a model: <code>ollama pull llama3.1</code><br>
+            3. Ollama auto-detects at <code>localhost:11434</code> — no API key needed!<br><br>
+            <strong>Auto-discovery:</strong> Klaw will automatically find all your Ollama models that support tool calling.
+          </div>
+        `;
+        document.getElementById('btn-next-2').disabled = false;
+
+      } else if (p.authType === 'local-url') {
+        area.innerHTML = `
+          <div class="info-box">
+            <strong>${p.name}:</strong> Make sure it's running before starting Klaw.
+          </div>
+          <div class="input-group">
+            <label>Base URL</label>
+            <input type="text" id="custom-base-url" value="${p.defaultBase}" placeholder="http://127.0.0.1:1234/v1">
+          </div>
+          <div class="input-group">
+            <label>API Key (optional)</label>
+            <input type="text" id="api-key" placeholder="Leave empty if not required">
+          </div>
+        `;
+        document.getElementById('btn-next-2').disabled = false;
+
+      } else if (p.authType === 'custom-endpoint') {
+        area.innerHTML = `
+          <div class="input-group">
+            <label>Base URL</label>
+            <input type="text" id="custom-base-url" value="${p.defaultBase || ''}" placeholder="https://api.example.com/v1">
+          </div>
+          <div class="input-group">
+            <label>API Key</label>
+            <input type="password" id="api-key" placeholder="Enter key..." autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label>API Format</label>
+            <select id="api-format">
+              <option value="openai-completions">OpenAI Compatible</option>
+              <option value="anthropic-messages">Anthropic Compatible</option>
+              <option value="openai-responses">OpenAI Responses</option>
+            </select>
+          </div>
+        `;
+        document.getElementById('btn-next-2').disabled = false;
+
+      } else if (p.authType === 'env-note') {
+        area.innerHTML = `<div class="info-box">${p.note}</div>`;
+        document.getElementById('btn-next-2').disabled = false;
+
+      } else if (p.authType === 'setup-token') {
+        area.innerHTML = `
+          <div class="info-box">${p.note || ''}</div>
+          <div class="input-group">
+            <label>${p.keyLabel || 'Setup Token'}</label>
+            <input type="password" id="api-key" placeholder="${p.keyPlaceholder || 'Paste token...'}" autocomplete="off" spellcheck="false">
+          </div>
+        `;
+        setTimeout(() => {
+          const input = document.getElementById('api-key');
+          input.focus();
+          input.oninput = () => { document.getElementById('btn-next-2').disabled = !input.value.trim(); };
+          document.getElementById('btn-next-2').disabled = true;
+        }, 100);
+
+      } else if (p.authType === 'oauth-note') {
+        area.innerHTML = `
+          <div class="info-box">${p.note || 'This provider uses OAuth. Configure via CLI after setup.'}</div>
+        `;
+        document.getElementById('btn-next-2').disabled = false;
+      }
+
+      // Populate model select
+      const select = document.getElementById('model-select');
+      select.innerHTML = '';
+      const customGroup = document.getElementById('custom-model-group');
+      
+      if (p.models && p.models.length > 0) {
+        p.models.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.value;
+          opt.textContent = m.label;
+          select.appendChild(opt);
+        });
+        const customOpt = document.createElement('option');
+        customOpt.value = '__custom__';
+        customOpt.textContent = '— Enter custom model ID —';
+        select.appendChild(customOpt);
+        customGroup.style.display = 'none';
+      } else {
+        customGroup.style.display = 'block';
+        select.style.display = 'none';
+      }
+
+      select.onchange = () => {
+        customGroup.style.display = select.value === '__custom__' ? 'block' : 'none';
+      };
+    }
+
+    // ══════════════════════════════════════════════════════
+    // STEP 4: Channel toggles
+    // ══════════════════════════════════════════════════════
+    function toggleChannel(ch) {
+      const card = document.getElementById('channel-' + ch);
+      const config = document.getElementById('config-' + ch);
+      
+      if (enabledChannels[ch]) {
+        delete enabledChannels[ch];
+        card.classList.remove('enabled');
+        card.querySelector('.ch-badge')?.remove();
+        config.classList.remove('open');
+      } else {
+        enabledChannels[ch] = true;
+        card.classList.add('enabled');
+        if (!card.querySelector('.ch-badge')) {
+          const badge = document.createElement('div');
+          badge.className = 'ch-badge';
+          badge.textContent = 'ON';
+          card.appendChild(badge);
+        }
+        config.classList.add('open');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════
+    // STEP 5: Toggle watchers for brave config visibility
+    // ══════════════════════════════════════════════════════
+    document.getElementById('toggle-brave').addEventListener('click', function() {
+      setTimeout(() => {
+        document.getElementById('brave-config').classList.toggle('open', this.classList.contains('on'));
+      }, 50);
+    });
+
+    // ══════════════════════════════════════════════════════
+    // SAVE CONFIG
+    // ══════════════════════════════════════════════════════
+    async function saveConfig() {
+      goStep(6);
+      const progress = document.getElementById('save-progress');
+
+      try {
+        progress.textContent = 'Building configuration...';
+        const p = PROVIDERS[selectedProvider];
+
+        const config = {
+          provider: selectedProvider,
+          providerData: p,
+          apiKey: document.getElementById('api-key')?.value?.trim() || '',
+          baseUrl: document.getElementById('custom-base-url')?.value?.trim() || '',
+          apiFormat: document.getElementById('api-format')?.value || '',
+          model: document.getElementById('model-select')?.value || '',
+          customModelId: document.getElementById('custom-model-id')?.value?.trim() || '',
+          identity: {
+            name: document.getElementById('agent-name')?.value?.trim() || 'Root',
+            theme: document.getElementById('agent-theme')?.value?.trim() || '',
+            emoji: document.getElementById('agent-emoji')?.value?.trim() || '🤖',
+          },
+          timezone: document.getElementById('timezone')?.value || 'auto',
+          channels: {},
+          gatewayPort: parseInt(document.getElementById('gateway-port')?.value) || 19789,
+          features: {
+            braveSearch: document.getElementById('toggle-brave')?.classList.contains('on'),
+            braveKey: document.getElementById('brave-key')?.value?.trim() || '',
+            heartbeat: document.getElementById('toggle-heartbeat')?.classList.contains('on'),
+            voice: document.getElementById('toggle-voice')?.classList.contains('on'),
+            browser: document.getElementById('toggle-browser')?.classList.contains('on'),
+            cron: document.getElementById('toggle-cron')?.classList.contains('on'),
+            sandbox: document.getElementById('toggle-sandbox')?.classList.contains('on'),
+          },
+        };
+
+        // Use custom model ID if selected
+        if (config.model === '__custom__' || !config.model) {
+          config.model = config.customModelId;
+        }
+
+        // Gather channel configs
+        if (enabledChannels.telegram) {
+          config.channels.telegram = {
+            enabled: true,
+            botToken: document.getElementById('tg-token')?.value?.trim() || '',
+            allowFrom: (document.getElementById('tg-allow')?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+            dmPolicy: 'pairing',
+            groupPolicy: 'allowlist',
+            streamMode: 'partial',
+          };
+        }
+        if (enabledChannels.whatsapp) {
+          config.channels.whatsapp = {
+            enabled: true,
+            allowFrom: (document.getElementById('wa-allow')?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+            dmPolicy: 'allowlist',
+          };
+        }
+        if (enabledChannels.discord) {
+          config.channels.discord = {
+            enabled: true,
+            token: document.getElementById('dc-token')?.value?.trim() || '',
+            dm: {
+              enabled: true,
+              allowFrom: (document.getElementById('dc-allow')?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+            },
+          };
+        }
+        if (enabledChannels.slack) {
+          config.channels.slack = {
+            enabled: true,
+            botToken: document.getElementById('sl-bot-token')?.value?.trim() || '',
+            appToken: document.getElementById('sl-app-token')?.value?.trim() || '',
+          };
+        }
+        if (enabledChannels.signal) {
+          config.channels.signal = {
+            enabled: true,
+            allowFrom: (document.getElementById('sig-allow')?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+          };
+        }
+
+        progress.textContent = 'Saving configuration...';
+        await ipcRenderer.invoke('save-setup', config);
+
+        progress.textContent = 'Starting gateway...';
+        await new Promise(r => setTimeout(r, 2000));
+
+        goStep(7);
+      } catch (err) {
+        document.getElementById('save-status').innerHTML =
+          `<div class="icon">❌</div><div style="color:#ef4444">Error: ${err.message}</div>
+           <button class="btn btn-secondary" style="margin-top:16px; max-width:200px" onclick="goStep(5)">← Try Again</button>`;
+      }
+    }
+
+    function openChat() { ipcRenderer.send('open-chat'); }
+    function openExt(url) { ipcRenderer.send('open-external', url); }
+  </script>
+</body>
+</html>
+
