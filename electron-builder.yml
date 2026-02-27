@@ -4,21 +4,6 @@ copyright: Copyright © 2026 Ravindra Kumar
 
 asar: false
 
-files:
-  - "**/*"
-  - dist
-  - "!.git"
-  - "!.github"
-  - "!release"
-  - "!src"
-  - "!test"
-  - "!ui"
-  - "!scripts"
-  - "!docs"
-  - "!extensions"
-  - "!**/*.test.*"
-  - "!**/*.map"
-
 extraResources:
   - from: electron/node/
     to: node/

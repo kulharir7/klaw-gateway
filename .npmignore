@@ -1,0 +1,14 @@
+# electron-builder uses .npmignore instead of .gitignore when present
+# We NEED: dist/, node_modules/, electron/, openclaw.mjs, package.json
+# We DON'T NEED: src/, test/, docs/, ui/, .git/, scripts/, extensions/
+.git
+.github
+src
+test
+docs
+ui
+scripts
+extensions
+release
+*.test.*
+*.map
