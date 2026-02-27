@@ -10,6 +10,12 @@ files:
   - "!**/*.test.*"
   - "!**/*.map"
 
+extraResources:
+  - from: electron/node/
+    to: node/
+    filter:
+      - "**/*"
+
 extraMetadata:
   main: electron/main.cjs
 

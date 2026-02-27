@@ -38,7 +38,7 @@ process.on('uncaughtException', (err) => {
 });
 
 // ─── Config ──────────────────────────────────────────
-const GATEWAY_PORT = 19789;
+let GATEWAY_PORT = 19789;
 // Klaw has its own state dir — separate from OpenClaw CLI
 const KLAW_STATE_DIR = path.join(app.getPath('home'), '.klaw');
 const ROOT_CONFIG = path.join(KLAW_STATE_DIR, 'klaw.json');
@@ -69,7 +69,7 @@ const ROOT_MJS = findRootMjs();
 
 // Find system Node.js binary. Electron's process.execPath is the Electron binary,
 // which breaks when entry.js tries to respawn with Node-only CLI flags.
-function findNodeBinary() {
+async function findNodeBinary() {
   const { execSync } = require('child_process');
   // 1. Bundled portable node (shipped with installer)
   const bundledPaths = [
@@ -102,9 +102,18 @@ function findNodeBinary() {
       return result;
     }
   } catch {}
-  // 4. Fallback to Electron's execPath
+  // 4. Try auto-download
+  try {
+    console.log('[Klaw] Node.js not found anywhere, attempting auto-download...');
+    const downloaded = await autoDownloadNode();
+    if (downloaded && fs.existsSync(downloaded)) {
+      console.log('[Klaw] Auto-downloaded node at:', downloaded);
+      return downloaded;
+    }
+  } catch (e) {
+    console.error('[Klaw] Auto-download failed:', e.message);
+  }
   console.warn('[Klaw] Node.js not found! Gateway may not start.');
-  console.warn('[Klaw] Install Node.js from https://nodejs.org or place node.exe in electron/node/');
   return process.execPath;
 }
 
@@ -164,13 +173,83 @@ async function waitForGateway(timeoutMs = 30000) {
   return false;
 }
 
+async function isKlawGateway(port) {
+  // Check if the process on this port is a Klaw/OpenClaw gateway
+  return new Promise((resolve) => {
+    const http = require('http');
+    const req = http.get(`http://127.0.0.1:${port}/api/health`, { timeout: 3000 }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        resolve(data.includes('ok') || data.includes('status') || res.statusCode === 200);
+      });
+    });
+    req.on('error', () => resolve(false));
+    req.on('timeout', () => { req.destroy(); resolve(false); });
+  });
+}
+
+async function findAvailablePort(startPort, maxTries = 5) {
+  for (let i = 0; i < maxTries; i++) {
+    const port = startPort + i;
+    if (!(await isPortInUse(port))) return port;
+    // If it's already a Klaw gateway, reuse it
+    if (await isKlawGateway(port)) return port;
+  }
+  return null;
+}
+
+async function autoDownloadNode() {
+  // Download Node.js portable if not found
+  const nodeDir = path.join(__dirname, 'node');
+  const nodeExe = path.join(nodeDir, 'node.exe');
+  if (fs.existsSync(nodeExe)) return nodeExe;
+
+  console.log('[Klaw] Node.js not found, downloading portable version...');
+  if (!fs.existsSync(nodeDir)) fs.mkdirSync(nodeDir, { recursive: true });
+
+  return new Promise((resolve, reject) => {
+    const https = require('https');
+    const url = 'https://nodejs.org/dist/v22.14.0/win-x64/node.exe';
+    const file = fs.createWriteStream(nodeExe);
+    https.get(url, (response) => {
+      if (response.statusCode === 302 || response.statusCode === 301) {
+        https.get(response.headers.location, (res) => {
+          res.pipe(file);
+          file.on('finish', () => { file.close(); console.log('[Klaw] Node.js downloaded!'); resolve(nodeExe); });
+        }).on('error', reject);
+      } else {
+        response.pipe(file);
+        file.on('finish', () => { file.close(); console.log('[Klaw] Node.js downloaded!'); resolve(nodeExe); });
+      }
+    }).on('error', reject);
+  });
+}
+
 async function startGateway() {
-  // Check if already running
+  // Check if already running on our port
   if (await isPortInUse(GATEWAY_PORT)) {
-    console.log('[Klaw] Gateway already running on port', GATEWAY_PORT);
-    gatewayReady = true;
-    updateTrayIcon();
-    return true;
+    if (await isKlawGateway(GATEWAY_PORT)) {
+      console.log('[Klaw] Gateway already running on port', GATEWAY_PORT, '- connecting to existing');
+      gatewayReady = true;
+      updateTrayIcon();
+      return true;
+    }
+    // Port used by something else - find next available
+    const newPort = await findAvailablePort(GATEWAY_PORT + 1, 5);
+    if (newPort && !(await isPortInUse(newPort))) {
+      console.log('[Klaw] Port', GATEWAY_PORT, 'busy, using', newPort);
+      GATEWAY_PORT = newPort;
+    } else if (newPort && await isKlawGateway(newPort)) {
+      console.log('[Klaw] Found existing Klaw gateway on port', newPort);
+      GATEWAY_PORT = newPort;
+      gatewayReady = true;
+      updateTrayIcon();
+      return true;
+    } else {
+      console.error('[Klaw] No available port found!');
+      return false;
+    }
   }
 
   gatewayStoppedByUser = false;
@@ -223,8 +302,8 @@ async function startGateway() {
     NODE_OPTIONS: '--disable-warning=ExperimentalWarning',
   };
 
-  // Find Node.js: 1) bundled portable node, 2) system node
-  const nodeBin = findNodeBinary();
+  // Find Node.js: 1) bundled portable node, 2) system node, 3) auto-download
+  const nodeBin = await findNodeBinary();
   console.log('[Klaw] Using node binary:', nodeBin);
 
   const spawnArgs = [
@@ -1143,12 +1222,29 @@ app.whenReady().then(async () => {
     });
   }
 
-  // If gateway didn't start (and not first run), show error
+  // If gateway didn't start (and not first run), retry once then show helpful error
   if (!started && configExists) {
-    dialog.showErrorBox(
-      'Klaw — Gateway Error',
-      'Failed to start the Klaw gateway.\n\nMake sure no other process is using port ' + GATEWAY_PORT
-    );
+    console.log('[Klaw] First start failed, retrying in 3s...');
+    await new Promise(r => setTimeout(r, 3000));
+    started = await startGateway();
+    if (!started) {
+      const { response } = await dialog.showMessageBox({
+        type: 'warning',
+        title: 'Klaw — Gateway',
+        message: 'Could not start the gateway.',
+        detail: `Port ${GATEWAY_PORT} may be in use, or Node.js was not found.\n\nTry closing other Klaw instances and restarting.`,
+        buttons: ['Retry', 'Open Settings', 'Quit'],
+        defaultId: 0,
+      });
+      if (response === 0) {
+        started = await startGateway();
+      } else if (response === 1) {
+        // Show config file
+        require('electron').shell.openPath(ROOT_CONFIG);
+      } else {
+        app.quit();
+      }
+    }
   }
 
   // Register global shortcuts
