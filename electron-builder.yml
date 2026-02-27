@@ -4,9 +4,27 @@ copyright: Copyright © 2026 Ravindra Kumar
 
 asar: false
 
+files:
+  - "dist/**/*"
+  - "electron/**/*"
+  - "node_modules/**/*"
+  - "openclaw.mjs"
+  - "package.json"
+  - "docs/reference/templates/**/*"
+  - "!src"
+  - "!test"
+  - "!ui"
+  - "!scripts"
+  - "!.git"
+  - "!.github"
+
 extraResources:
   - from: electron/node/
     to: node/
+    filter:
+      - "**/*"
+  - from: dist/
+    to: app/dist/
     filter:
       - "**/*"
 

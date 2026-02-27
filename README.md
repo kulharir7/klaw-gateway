@@ -12,11 +12,21 @@ Built by [Ravindra Kumar](https://github.com/kulharir7). Fork of [OpenClaw](http
 - **Node.js** v22+ ([download](https://nodejs.org/))
 - **pnpm** (`npm install -g pnpm`)
 
-### Install
+### Download & Install
 
+**Option 1: Download ZIP** (no git needed)
+1. Click **[Download ZIP](https://github.com/kulharir7/klaw-gateway/archive/refs/heads/main.zip)**
+2. Extract the folder
+3. Open terminal in that folder
+
+**Option 2: Git clone**
 ```bash
 git clone https://github.com/kulharir7/klaw-gateway.git
 cd klaw-gateway
+```
+
+Then install dependencies:
+```bash
 pnpm install
 ```
 

@@ -1,5 +1,5 @@
 {
-  "name": "klaw",
+  "name": "klaw-ai",
   "version": "2026.2.26",
   "description": "Klaw - Self-hosted AI Gateway. Connect chat apps to AI agents.",
   "keywords": [],
@@ -8,17 +8,14 @@
     "url": "https://github.com/openclaw/openclaw/issues"
   },
   "license": "MIT",
-  "build": {
-    "directories": {
-      "output": "release"
-    }
-  },
+
   "author": "Ravindra Kumar",
   "repository": {
     "type": "git",
     "url": "https://github.com/kulharir7/klaw-gateway.git"
   },
   "bin": {
+    "klaw-ai": "openclaw.mjs",
     "klaw": "openclaw.mjs"
   },
 
@@ -111,7 +108,7 @@
     "openclaw": "node scripts/run-node.mjs",
     "openclaw:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "plugins:sync": "node --import tsx scripts/sync-plugin-versions.ts",
-    "prepack": "pnpm build && pnpm ui:build",
+    "prepack_disabled": "pnpm build && pnpm ui:build",
     "prepare": "command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath git-hooks || exit 0",
     "protocol:check": "pnpm protocol:gen && pnpm protocol:gen:swift && git diff --exit-code -- dist/protocol.schema.json apps/macos/Sources/OpenClawProtocol/GatewayModels.swift",
     "protocol:gen": "node --import tsx scripts/protocol-gen.ts",
