@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 async function test() {
-  console.log('\n🤖 Korvus Computer Use — Live Test\n');
+  console.log('\n🤖 Klaw Computer Use — Live Test\n');
   
   // Step 1: Screenshot
   console.log('📸 Taking screenshot...');
@@ -34,7 +34,7 @@ async function test() {
   
   // Step 6: Type
   console.log('   Typing...');
-  await screen.type('Korvus Computer Use Agent is working!');
+  await screen.type('Klaw Computer Use Agent is working!');
   await screen.key('enter');
   await screen.type('This was typed automatically by AI.');
   await screen.wait(500);
@@ -44,7 +44,7 @@ async function test() {
   const b64After = await screen.screenshot();
   
   // Save for verification
-  const tmpPath = path.join(require('os').tmpdir(), 'rootai-test-screenshot.png');
+  const tmpPath = path.join(require('os').tmpdir(), 'Klaw-test-screenshot.png');
   fs.writeFileSync(tmpPath, Buffer.from(b64After, 'base64'));
   console.log(`   ✅ Saved to: ${tmpPath}`);
   
@@ -57,8 +57,9 @@ async function test() {
   
   console.log('\n✅ All screen controls working!\n');
   console.log('To use Computer Use with AI, the gateway AI agent calls these functions.');
-  console.log('No separate API key needed — uses the same AI provider configured in Korvus.\n');
+  console.log('No separate API key needed — uses the same AI provider configured in Klaw.\n');
 }
 
 test().catch(e => { console.error('❌ Error:', e.message); process.exit(1); });
+
 

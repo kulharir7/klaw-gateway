@@ -1,5 +1,5 @@
 /**
- * screen.js — Screen control for Korvus Computer Use
+ * screen.js — Screen control for Klaw Computer Use
  * 
  * Provides: screenshot, click, type, key, scroll, openApp, openUrl, etc.
  * All screenshot data stays in RAM — never written to disk.
@@ -18,7 +18,7 @@ const SCREENSHOT_TIMEOUT = 15000;
 const ACTION_TIMEOUT = 8000;
 const APP_OPEN_TIMEOUT = 10000;
 // Write scripts to temp dir (can't write inside app.asar)
-const SCRIPTS_DIR = path.join(os.tmpdir(), 'korvus-ps-scripts');
+const SCRIPTS_DIR = path.join(os.tmpdir(), 'Klaw-ps-scripts');
 
 // ─── Init: Create PowerShell scripts on first load ──
 function ensureScripts() {
@@ -58,7 +58,7 @@ Add-Type @'
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-public class RootAIInput {
+public class KlawInput {
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int X, int Y);
     [DllImport("user32.dll")] public static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
     
@@ -105,11 +105,11 @@ public class RootAIInput {
 '@
 
 switch ($Action) {
-    "leftclick"   { [RootAIInput]::LeftClick([int]$Arg1, [int]$Arg2) }
-    "rightclick"  { [RootAIInput]::RightClick([int]$Arg1, [int]$Arg2) }
-    "doubleclick" { [RootAIInput]::DoubleClick([int]$Arg1, [int]$Arg2) }
-    "scroll"      { [RootAIInput]::ScrollWheel([int]$Arg1) }
-    "move"        { [RootAIInput]::MoveTo([int]$Arg1, [int]$Arg2) }
+    "leftclick"   { [KlawInput]::LeftClick([int]$Arg1, [int]$Arg2) }
+    "rightclick"  { [KlawInput]::RightClick([int]$Arg1, [int]$Arg2) }
+    "doubleclick" { [KlawInput]::DoubleClick([int]$Arg1, [int]$Arg2) }
+    "scroll"      { [KlawInput]::ScrollWheel([int]$Arg1) }
+    "move"        { [KlawInput]::MoveTo([int]$Arg1, [int]$Arg2) }
     default       { Write-Error "Unknown action: $Action" }
 }
 Write-Output "OK"
@@ -529,4 +529,5 @@ module.exports = {
   getFocusedElement,
   wait,
 };
+
 

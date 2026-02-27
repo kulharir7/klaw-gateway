@@ -1,5 +1,5 @@
 /**
- * agent.js — Computer Use Agent Loop for Korvus
+ * agent.js — Computer Use Agent Loop for Klaw
  * 
  * Takes a user goal, then runs the loop:
  *   Screenshot → AI Vision → Execute Action → Repeat → Done
@@ -321,4 +321,5 @@ class ComputerUseAgent extends EventEmitter {
 
 // ─── Exports ─────────────────────────────────────────
 module.exports = { ComputerUseAgent };
+
 

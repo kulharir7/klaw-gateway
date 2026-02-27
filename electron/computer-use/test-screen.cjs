@@ -59,8 +59,8 @@ async function runTests() {
   });
 
   // Test 6: type
-  await test('type("Hello Korvus!")', async () => {
-    await screen.type('Hello Korvus!');
+  await test('type("Hello Klaw!")', async () => {
+    await screen.type('Hello Klaw!');
     await screen.wait(300);
   });
 
@@ -152,4 +152,5 @@ async function runTests() {
 runTests().then(ok => {
   process.exit(ok ? 0 : 1);
 });
+
 

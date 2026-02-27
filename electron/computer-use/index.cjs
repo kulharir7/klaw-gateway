@@ -1,5 +1,5 @@
 /**
- * Korvus — Computer Use Agent
+ * Klaw — Computer Use Agent
  * 
  * Main entry point. Import this to use the computer use feature.
  * 
@@ -24,4 +24,5 @@ module.exports = {
   vision,
   vault,
 };
+
 

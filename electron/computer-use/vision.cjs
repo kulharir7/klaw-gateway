@@ -1,10 +1,10 @@
 /**
- * vision.js — AI Vision for Korvus Computer Use
+ * vision.js — AI Vision for Klaw Computer Use
  * 
  * Takes a screenshot (base64), sends to AI with the user's goal,
  * and gets back a structured action to execute.
  * 
- * Uses the Korvus gateway API (port 18790) to make AI calls,
+ * Uses the Klaw gateway API (port 19789) to make AI calls,
  * so it automatically uses whatever AI provider the user configured.
  * Also supports direct API calls if env vars are set.
  */
@@ -15,9 +15,9 @@ const https = require('https');
 const http = require('http');
 
 // ─── Config ──────────────────────────────────────────
-const ROOT_STATE_DIR = path.join(require('os').homedir(), '.korvus');
+const ROOT_STATE_DIR = path.join(require('os').homedir(), '.Klaw');
 const ROOT_CONFIG = path.join(ROOT_STATE_DIR, 'root.json');
-const GATEWAY_PORT = 18790;
+const GATEWAY_PORT = 19789;
 
 /**
  * Read AI config. Priority:
@@ -72,7 +72,7 @@ function getAIConfig() {
     }
   } catch (e) { /* no config or parse error — fall through */ }
   
-  // Check OpenClaw auth-profiles.json (works for both Korvus and OpenClaw)
+  // Check OpenClaw auth-profiles.json (works for both Klaw and OpenClaw)
   const authPaths = [
     path.join(ROOT_STATE_DIR, 'agents', 'main', 'agent', 'auth-profiles.json'),
     path.join(require('os').homedir(), '.openclaw', 'agents', 'main', 'agent', 'auth-profiles.json'),
@@ -98,7 +98,7 @@ function getAIConfig() {
     } catch (e) { /* no auth file — continue */ }
   }
   
-  // Fallback: use gateway API (Korvus on 18790, or OpenClaw on 18789)
+  // Fallback: use gateway API (Klaw on 19789, or OpenClaw on 18789)
   const gatewayPort = findRunningGateway();
   return { provider: 'gateway', apiKey: getGatewayToken(), model: '', baseUrl: `http://127.0.0.1:${gatewayPort}` };
 }
@@ -123,12 +123,12 @@ function getGatewayToken() {
 }
 
 /**
- * Find which gateway port is running (Korvus 18790 or OpenClaw 18789).
+ * Find which gateway port is running (Klaw 19789 or OpenClaw 18789).
  */
 function findRunningGateway() {
   const net = require('net');
-  // Check Korvus first, then OpenClaw
-  for (const port of [18790, 18789]) {
+  // Check Klaw first, then OpenClaw
+  for (const port of [19789, 18789]) {
     try {
       const sock = new net.Socket();
       sock.setTimeout(200);
@@ -143,7 +143,7 @@ function findRunningGateway() {
   }
   // Simple sync check using execSync
   const { execSync } = require('child_process');
-  for (const port of [18790, 18789]) {
+  for (const port of [19789, 18789]) {
     try {
       execSync(`powershell -NoProfile -Command "(New-Object Net.Sockets.TcpClient).Connect('127.0.0.1', ${port})"`, 
         { timeout: 1000, stdio: 'ignore' });
@@ -154,7 +154,7 @@ function findRunningGateway() {
 }
 
 // ─── System Prompt ───────────────────────────────────
-const SYSTEM_PROMPT = `You are Korvus's Computer Use agent controlling a Windows desktop.
+const SYSTEM_PROMPT = `You are Klaw's Computer Use agent controlling a Windows desktop.
 
 You see a screenshot and must decide the NEXT SINGLE ACTION toward the user's goal.
 
@@ -462,7 +462,7 @@ async function callGateway(config, screenshotBase64, userContent) {
     console.error('[Vision] Direct API call failed:', e.message);
   }
   
-  throw new Error('Computer Use needs an AI provider. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or GOOGLE_API_KEY in Korvus Config → Environment.');
+  throw new Error('Computer Use needs an AI provider. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or GOOGLE_API_KEY in Klaw Config → Environment.');
 }
 
 /**
@@ -567,7 +567,7 @@ async function callGatewayWebSocket(port, token, screenshotBase64, userContent) 
 }
 
 /**
- * Call gateway via CLI `root.mjs agent` command.
+ * Call gateway via CLI `openclaw.mjs agent` command.
  * Saves screenshot to temp, tells agent to use the `image` tool to analyze it.
  * This handles OAuth tokens since the gateway manages auth internally.
  */
@@ -575,17 +575,17 @@ async function callGatewayCLI(port, token, screenshotBase64, userContent) {
   const { execFile } = require('child_process');
   const os = require('os');
   
-  // Find root.mjs
+  // Find openclaw.mjs
   const candidates = [
-    path.join(__dirname, '..', '..', 'root.mjs'),
-    path.join(os.homedir(), '.openclaw', 'workspace', 'korvus', 'root.mjs'),
-    path.join(os.homedir(), 'korvus', 'root.mjs'),
+    path.join(__dirname, '..', '..', 'openclaw.mjs'),
+    path.join(os.homedir(), '.openclaw', 'workspace', 'Klaw', 'openclaw.mjs'),
+    path.join(os.homedir(), 'Klaw', 'openclaw.mjs'),
   ];
   let rootMjs = null;
   for (const p of candidates) {
     if (fs.existsSync(p)) { rootMjs = p; break; }
   }
-  if (!rootMjs) throw new Error('root.mjs not found');
+  if (!rootMjs) throw new Error('openclaw.mjs not found');
   
   // Find node binary
   const nodePaths = ['C:\\Program Files\\nodejs\\node.exe', '/usr/local/bin/node', '/usr/bin/node'];
@@ -595,7 +595,7 @@ async function callGatewayCLI(port, token, screenshotBase64, userContent) {
   }
   
   // Save screenshot to temp file so agent can use `image` tool on it
-  const tmpFile = path.join(os.tmpdir(), `rootai-cu-${Date.now()}.png`);
+  const tmpFile = path.join(os.tmpdir(), `Klaw-cu-${Date.now()}.png`);
   fs.writeFileSync(tmpFile, Buffer.from(screenshotBase64, 'base64'));
   
   // Build the message: tell agent to analyze the screenshot using the image tool
@@ -702,4 +702,5 @@ module.exports = {
   parseAction,
   SYSTEM_PROMPT,
 };
+
 

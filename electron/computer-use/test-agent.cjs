@@ -4,9 +4,9 @@
  */
 const { ComputerUseAgent } = require('./agent.cjs');
 
-const goal = process.argv[2] || 'Open Notepad and type "Hello from Korvus Computer Use Agent!"';
+const goal = process.argv[2] || 'Open Notepad and type "Hello from Klaw Computer Use Agent!"';
 
-console.log(`\n🤖 Korvus Computer Use Agent`);
+console.log(`\n🤖 Klaw Computer Use Agent`);
 console.log(`📋 Goal: ${goal}\n`);
 
 const agent = new ComputerUseAgent();
@@ -45,4 +45,5 @@ agent.run(goal).then(result => {
   console.error('Fatal:', err);
   process.exit(1);
 });
+
 

@@ -1,5 +1,5 @@
 /**
- * vault.js — Security Vault for Korvus Computer Use
+ * vault.js — Security Vault for Klaw Computer Use
  * 
  * Protects user's sensitive data:
  * - Blocks specific apps from AI control
@@ -7,13 +7,13 @@
  * - Detects and blocks sensitive text input (passwords, card numbers)
  * - Safety modes: full-auto, ask-before, watch-only
  * 
- * Config stored in ~/.korvus/vault.json
+ * Config stored in ~/.Klaw/vault.json
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const ROOT_STATE_DIR = path.join(require('os').homedir(), '.korvus');
+const ROOT_STATE_DIR = path.join(require('os').homedir(), '.Klaw');
 const VAULT_FILE = path.join(ROOT_STATE_DIR, 'vault.json');
 
 // ─── Default Config ──────────────────────────────────
@@ -276,4 +276,5 @@ module.exports = {
   checkAction,
   DEFAULT_VAULT,
 };
+
 

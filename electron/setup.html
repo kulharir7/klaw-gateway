@@ -18,6 +18,8 @@
       margin: 0 auto;
       padding: 40px 24px;
       -webkit-app-region: no-drag;
+      max-height: 100vh;
+      overflow-y: auto;
     }
 
     /* Logo */
@@ -32,6 +34,8 @@
 
     /* Steps */
     .step { display: none; animation: fadeIn 0.3s ease; }
+    #step4 .channels-scroll { max-height: 35vh; overflow-y: auto; margin-bottom: 12px; }
+
     .step.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -418,7 +422,7 @@
 
       <div class="input-group">
         <label>Agent Name</label>
-        <input type="text" id="agent-name" placeholder="Root" value="Root">
+        <input type="text" id="agent-name" placeholder="Klaw" value="Klaw">
       </div>
       <div class="input-group">
         <label>Theme / Personality</label>
@@ -456,6 +460,7 @@
       <div class="step-title">Connect Channels</div>
       <div class="step-desc">Chat from WhatsApp, Telegram, Discord, etc. (all optional)</div>
 
+      <div class="channels-scroll">
       <div id="channel-telegram" class="channel-card" onclick="toggleChannel('telegram')">
         <div class="ch-icon">✈️</div>
         <div class="ch-info">
@@ -581,6 +586,7 @@
         </div>
       </div>
 
+      </div><!-- close channels-scroll -->
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
         <button class="btn btn-ghost" onclick="goStep(5)">Skip →</button>
@@ -660,7 +666,7 @@
         </p>
         <button class="btn btn-primary" style="max-width:300px; margin:0 auto" onclick="openChat()">Open Chat →</button>
         <div style="margin-top:16px">
-          <button class="btn btn-ghost" onclick="openExt('https://github.com/kulharir7/root-ai')">📖 Documentation</button>
+          <button class="btn btn-ghost" onclick="openExt('https://github.com/kulharir7/klaw')">📖 Documentation</button>
         </div>
       </div>
     </div>
@@ -1207,7 +1213,7 @@
           model: document.getElementById('model-select')?.value || '',
           customModelId: document.getElementById('custom-model-id')?.value?.trim() || '',
           identity: {
-            name: document.getElementById('agent-name')?.value?.trim() || 'Root',
+            name: document.getElementById('agent-name')?.value?.trim() || 'Klaw',
             theme: document.getElementById('agent-theme')?.value?.trim() || '',
             emoji: document.getElementById('agent-emoji')?.value?.trim() || '🤖',
           },
@@ -1291,4 +1297,7 @@
   </script>
 </body>
 </html>
+
+
+
 

@@ -511,9 +511,9 @@ function createWindow() {
   
   mainWindow = new BrowserWindow({
     width: firstRun ? 660 : 1200,
-    height: firstRun ? 850 : 800,
+    height: firstRun ? Math.min(750, require('electron').screen.getPrimaryDisplay().workAreaSize.height - 50) : 800,
     minWidth: firstRun ? 600 : 600,
-    minHeight: firstRun ? 700 : 400,
+    minHeight: firstRun ? 500 : 400,
     title: 'Klaw',
     icon: getIconPath(),
     backgroundColor: '#0f0f13',
@@ -688,9 +688,9 @@ function createWindow() {
               }
             }
             
-            // 2. Page titles - only h1/h2 that say "Root Control"
+            // 2. Page titles - only h1/h2 that say "Klaw"
             document.querySelectorAll('h1, h2').forEach(el => {
-              if (el.textContent.trim() === 'Root Control') {
+              if (el.textContent.trim() === 'Klaw') {
                 el.textContent = 'Klaw';
               }
             });
@@ -1118,7 +1118,7 @@ app.whenReady().then(async () => {
     }).then((result) => {
       if (result.response === 1) {
         // TODO: Show license key input dialog
-        shell.openExternal('https://kulharir7.github.io/root-ai/#pricing');
+        shell.openExternal('https://kulharir7.github.io/klaw/#pricing');
       }
     });
   }
@@ -1133,7 +1133,7 @@ app.whenReady().then(async () => {
       buttons: ['Buy License', 'Enter Key', 'Quit'],
     }).then((result) => {
       if (result.response === 0) {
-        shell.openExternal('https://kulharir7.github.io/root-ai/#pricing');
+        shell.openExternal('https://kulharir7.github.io/klaw/#pricing');
         app.quit();
       } else if (result.response === 1) {
         // TODO: Show license key input dialog
@@ -2082,7 +2082,7 @@ ipcMain.on('open-external', (event, url) => {
 ipcMain.handle('plugin-get-registry', async () => {
   // Load registry from multiple possible locations
   const searchPaths = [
-    path.resolve(__dirname, '..', 'plugins', 'registry.json'),  // dev: root-ai/plugins/
+    path.resolve(__dirname, '..', 'plugins', 'registry.json'),  // dev: klaw/plugins/
     path.resolve(__dirname, 'gateway', 'plugins', 'registry.json'),  // packaged: gateway/plugins/
     path.resolve(__dirname, 'plugins', 'registry.json'),  // electron/plugins/
   ];
@@ -2423,6 +2423,7 @@ ipcMain.on('screen-vision-send', async (event, { crop, prompt, scaleFactor }) =>
     }, null, 2));
   }
 });
+
 
 
 
