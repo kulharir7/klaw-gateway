@@ -6,9 +6,16 @@ asar: false
 
 files:
   - "**/*"
+  - dist
   - "!.git"
   - "!.github"
   - "!release"
+  - "!src"
+  - "!test"
+  - "!ui"
+  - "!scripts"
+  - "!docs"
+  - "!extensions"
   - "!**/*.test.*"
   - "!**/*.map"
 
