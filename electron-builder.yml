@@ -1,0 +1,27 @@
+appId: ai.klaw.desktop
+productName: Klaw
+copyright: Copyright © 2026 Ravindra Kumar
+
+files:
+  - "**/*"
+  - "!.git"
+  - "!.github"
+  - "!release"
+  - "!**/*.test.*"
+  - "!**/*.map"
+
+extraMetadata:
+  main: electron/main.cjs
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: electron/assets/icon.ico
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  shortcutName: Klaw
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

@@ -70,7 +70,19 @@ const ROOT_MJS = findRootMjs();
 // which breaks when entry.js tries to respawn with Node-only CLI flags.
 function findNodeBinary() {
   const { execSync } = require('child_process');
-  // 1. Check common paths first (fast, no shell)
+  // 1. Bundled portable node (shipped with installer)
+  const bundledPaths = [
+    path.join(__dirname, 'node', 'node.exe'),           // electron/node/node.exe
+    path.join(__dirname, '..', 'node', 'node.exe'),     // klaw/node/node.exe
+    path.join(process.resourcesPath || '', 'node', 'node.exe'), // resources/node/node.exe
+  ];
+  for (const p of bundledPaths) {
+    if (fs.existsSync(p)) {
+      console.log('[Klaw] Found bundled node at:', p);
+      return p;
+    }
+  }
+  // 2. Check common system paths (fast, no shell)
   const commonPaths = process.platform === 'win32'
     ? ['C:\\Program Files\\nodejs\\node.exe', 'C:\\Program Files (x86)\\nodejs\\node.exe']
     : ['/usr/local/bin/node', '/usr/bin/node'];
@@ -80,7 +92,7 @@ function findNodeBinary() {
       return p;
     }
   }
-  // 2. Try `where node` (Windows) or `which node` (Unix)
+  // 3. Try `where node` (Windows) or `which node` (Unix)
   try {
     const cmd = process.platform === 'win32' ? 'where.exe node' : 'which node';
     const result = execSync(cmd, { timeout: 5000, encoding: 'utf8' }).trim().split('\n')[0].trim();
@@ -89,8 +101,9 @@ function findNodeBinary() {
       return result;
     }
   } catch {}
-  // 3. Fallback to Electron's execPath (may work for simple scripts)
-  console.warn('[Klaw] System node not found, falling back to Electron execPath:', process.execPath);
+  // 4. Fallback to Electron's execPath
+  console.warn('[Klaw] Node.js not found! Gateway may not start.');
+  console.warn('[Klaw] Install Node.js from https://nodejs.org or place node.exe in electron/node/');
   return process.execPath;
 }
 
@@ -204,24 +217,16 @@ async function startGateway() {
     ...process.env,
     OPENCLAW_STATE_DIR: KLAW_STATE_DIR,
     OPENCLAW_CONFIG_PATH: ROOT_CONFIG,
-    // Prevent entry.js from respawning with process.execPath (Electron binary, not Node.js).
-    // Without this, entry.js tries to spawn(process.execPath, ['--disable-warning=...', ...])
-    // which fails silently because Electron doesn't support Node CLI flags.
     OPENCLAW_NO_RESPAWN: '1',
     OPENCLAW_NODE_OPTIONS_READY: '1',
-    // Suppress ExperimentalWarning for ESM features used by the gateway
     NODE_OPTIONS: '--disable-warning=ExperimentalWarning',
   };
 
-  // Find Node.js binary: prefer system node over Electron's execPath.
-  // Electron's process.execPath is the Electron binary which can run JS but
-  // entry.js may respawn using execPath with Node-only flags, causing silent crashes.
+  // Find Node.js: 1) bundled portable node, 2) system node
   const nodeBin = findNodeBinary();
   console.log('[Klaw] Using node binary:', nodeBin);
 
   const spawnArgs = [
-    '--max-old-space-size=2048',
-    '--disable-warning=ExperimentalWarning',
     ROOT_MJS, 'gateway', '--verbose', '--allow-unconfigured', '--port', String(GATEWAY_PORT)
   ];
 
