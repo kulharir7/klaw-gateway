@@ -3,379 +3,988 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klaw — AI Gateway Desktop App</title>
-    <meta name="description" content="One-click AI gateway desktop app. Connect Claude, GPT, Gemini to Telegram, Discord, WhatsApp. Self-hosted, private, powerful.">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦞</text></svg>">
+    <title>Klaw — Your AI Gateway</title>
+    <meta name="description" content="Klaw is a powerful AI gateway desktop app. Connect 33+ AI providers, automate your computer, browse the web with AI, and earn money — all from one app.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔱</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         :root {
             --bg: #0a0a0f;
-            --surface: #12121a;
-            --border: #1e1e2e;
-            --text: #e4e4ef;
-            --text-dim: #8888a0;
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.3);
-            --green: #22c55e;
-            --orange: #f59e0b;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a2e;
+            --accent: #6c5ce7;
+            --accent-light: #a29bfe;
+            --accent-glow: rgba(108, 92, 231, 0.3);
+            --green: #00d2d3;
+            --green-glow: rgba(0, 210, 211, 0.3);
+            --orange: #ff6b35;
+            --pink: #fd79a8;
+            --text: #e8e8f0;
+            --text-dim: #8888a8;
+            --text-muted: #555570;
+            --border: #1e1e30;
+            --gradient-1: linear-gradient(135deg, #6c5ce7, #00d2d3);
+            --gradient-2: linear-gradient(135deg, #ff6b35, #fd79a8);
         }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.6;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
-        
-        /* Hero */
-        .hero {
-            min-height: 100vh;
+
+        /* ═══ ANIMATED BACKGROUND ═══ */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(108,92,231,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108,92,231,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: 0;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-glow-1 { background: var(--accent); top: -200px; left: -200px; }
+        .bg-glow-2 { background: var(--green); bottom: -200px; right: -200px; animation-delay: -10s; }
+        .bg-glow-3 { background: var(--orange); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -5s; opacity: 0.08; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -30px); }
+            66% { transform: translate(-20px, 20px); }
+        }
+
+        /* ═══ NAV ═══ */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 16px 0;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-            position: relative;
-            background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 60%);
+            justify-content: space-between;
         }
-        
-        .logo { font-size: 4rem; margin-bottom: 1rem; }
-        
-        h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
             font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #fff 0%, #6366f1 100%);
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .logo-icon {
+            font-size: 1.6rem;
+        }
+
+        .logo span {
+            background: var(--gradient-1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        .tagline {
-            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-            color: var(--text-dim);
-            max-width: 600px;
-            margin-bottom: 2.5rem;
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
         }
-        
-        .download-btn {
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        .nav-cta {
+            background: var(--gradient-1) !important;
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600 !important;
+        }
+
+        /* ═══ HERO ═══ */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+        }
+
+        .hero-content { max-width: 800px; }
+
+        .badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            background: var(--accent);
-            color: #fff;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(108, 92, 231, 0.1);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--accent-light);
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        h1 .gradient {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
             font-size: 1.2rem;
-            font-weight: 600;
-            padding: 1rem 2.5rem;
-            border-radius: 12px;
-            text-decoration: none;
-            transition: all 0.2s;
-            box-shadow: 0 4px 24px var(--accent-glow);
-        }
-        
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px var(--accent-glow);
-        }
-        
-        .download-info {
-            margin-top: 1rem;
             color: var(--text-dim);
-            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
-        .download-info span { color: var(--green); }
-        
-        /* Stats bar */
-        .stats {
+
+        .hero-buttons {
             display: flex;
-            gap: 3rem;
-            margin-top: 3rem;
-            flex-wrap: wrap;
+            gap: 16px;
             justify-content: center;
+            flex-wrap: wrap;
         }
-        
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 30px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+        }
+
+        .hero-meta {
+            margin-top: 32px;
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ═══ STATS BAR ═══ */
+        .stats {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: -40px auto 80px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
         .stat {
+            background: var(--bg-card);
+            padding: 32px 24px;
             text-align: center;
         }
-        
+
         .stat-num {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--accent);
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
+
         .stat-label {
             font-size: 0.85rem;
             color: var(--text-dim);
+            margin-top: 4px;
         }
-        
-        /* Features */
-        .features {
-            max-width: 1100px;
+
+        /* ═══ FEATURES ═══ */
+        .section {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 80px 24px;
         }
-        
-        .features h2 {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 3rem;
+
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
         }
-        
-        .grid {
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+        }
+
+        .section-desc {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 48px;
+        }
+
+        .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
         }
-        
-        .card {
-            background: var(--surface);
+
+        .feature-card {
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 2rem;
-            transition: border-color 0.2s;
+            padding: 32px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .card:hover { border-color: var(--accent); }
-        
-        .card-icon { font-size: 2rem; margin-bottom: 0.75rem; }
-        
-        .card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        
-        .card p { color: var(--text-dim); font-size: 0.95rem; }
-        
-        /* How it works */
-        .how {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
+
+        .feature-card:hover {
+            border-color: rgba(108, 92, 231, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
-        
-        .how h2 {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 3rem;
-        }
-        
-        .steps {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
-        .step {
+
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem 2rem;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
         }
-        
-        .step-num {
-            font-size: 1.5rem;
+
+        .fi-purple { background: rgba(108, 92, 231, 0.15); }
+        .fi-green { background: rgba(0, 210, 211, 0.15); }
+        .fi-orange { background: rgba(255, 107, 53, 0.15); }
+        .fi-pink { background: rgba(253, 121, 168, 0.15); }
+
+        .feature-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .tag-new { background: rgba(0, 210, 211, 0.15); color: var(--green); }
+        .tag-hot { background: rgba(255, 107, 53, 0.15); color: var(--orange); }
+        .tag-ai { background: rgba(108, 92, 231, 0.15); color: var(--accent-light); }
+
+        /* ═══ HERO FEATURE (Computer Use) ═══ */
+        .hero-feature {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin: 80px 0;
+        }
+
+        .hero-feature-text h3 {
+            font-size: 2rem;
             font-weight: 800;
-            color: var(--accent);
-            min-width: 2.5rem;
+            margin-bottom: 16px;
         }
-        
-        .step-text h4 { margin-bottom: 0.25rem; }
-        .step-text p { color: var(--text-dim); font-size: 0.9rem; }
-        
-        /* Providers */
+
+        .hero-feature-text p {
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .hero-feature-visual {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+        }
+
+        .terminal {
+            background: #0d0d14;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .terminal-bar {
+            padding: 10px 16px;
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot:nth-child(1) { background: #ff5f57; }
+        .terminal-dot:nth-child(2) { background: #febc2e; }
+        .terminal-dot:nth-child(3) { background: #28c840; }
+
+        .terminal-body {
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .t-green { color: var(--green); }
+        .t-purple { color: var(--accent-light); }
+        .t-dim { color: var(--text-muted); }
+        .t-orange { color: var(--orange); }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        /* ═══ PROVIDERS ═══ */
         .providers {
             text-align: center;
-            padding: 4rem 2rem;
-            max-width: 800px;
-            margin: 0 auto;
+            padding: 60px 0;
         }
-        
-        .providers h2 { font-size: 2rem; margin-bottom: 1rem; }
-        .providers p { color: var(--text-dim); margin-bottom: 2rem; }
-        
-        .tags {
+
+        .provider-logos {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 16px;
             justify-content: center;
+            margin-top: 32px;
         }
-        
-        .tag {
-            background: var(--surface);
+
+        .provider-chip {
+            padding: 10px 20px;
+            background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 0.4rem 1rem;
-            border-radius: 999px;
+            border-radius: 10px;
             font-size: 0.85rem;
             color: var(--text-dim);
+            font-weight: 500;
+            transition: all 0.2s;
         }
-        
-        /* CTA */
+
+        .provider-chip:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        /* ═══ CTA ═══ */
         .cta {
+            position: relative;
+            z-index: 1;
             text-align: center;
-            padding: 6rem 2rem;
-            background: radial-gradient(ellipse at 50% 100%, var(--accent-glow) 0%, transparent 60%);
+            padding: 100px 24px;
         }
-        
-        .cta h2 { font-size: 2.5rem; margin-bottom: 1rem; }
-        .cta p { color: var(--text-dim); margin-bottom: 2rem; font-size: 1.1rem; }
-        
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 2rem;
+
+        .cta-box {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+        }
+
+        .cta-box h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .cta-box p {
             color: var(--text-dim);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border);
+            margin-bottom: 32px;
+            font-size: 1.1rem;
         }
-        
-        footer a { color: var(--accent); text-decoration: none; }
-        
-        @media (max-width: 600px) {
-            .stats { gap: 1.5rem; }
-            .step { flex-direction: column; text-align: center; }
+
+        .cta-size {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 16px;
+        }
+
+        /* ═══ FOOTER ═══ */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border);
+            padding: 40px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a { color: var(--accent-light); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 768px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .hero-feature { grid-template-columns: 1fr; gap: 32px; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .nav-links { display: none; }
+            .hero-meta { flex-direction: column; gap: 12px; }
+        }
+
+        /* ═══ SCROLL ANIMATIONS ═══ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ═══ COMPARISON TABLE ═══ */
+        .comparison {
+            margin-top: 48px;
+            overflow-x: auto;
+        }
+
+        .comparison table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .comparison th {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .comparison th:first-child { color: var(--text); }
+
+        .comparison td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        .comparison tr:hover td { background: rgba(108, 92, 231, 0.03); }
+        .comparison td:first-child { color: var(--text); font-weight: 500; }
+
+        .check { color: var(--green); font-weight: 700; }
+        .cross { color: var(--text-muted); }
+        .highlight-col { background: rgba(108, 92, 231, 0.05); }
+
+        .comparison th.highlight-col {
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--accent-light);
         }
     </style>
 </head>
 <body>
-    <section class="hero">
-        <div class="logo">🦞</div>
-        <h1>Klaw</h1>
-        <p class="tagline">One-click AI gateway for your desktop. Connect Claude, GPT & Gemini to Telegram, Discord, WhatsApp — all self-hosted.</p>
-        <a href="https://github.com/kulharir7/klaw-gateway/releases/download/v1.0.0/Klaw-Setup-2026.2.26.exe" class="download-btn">
-            ⬇️ Download for Windows
+
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-glow bg-glow-3"></div>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-inner">
+        <a href="#" class="logo">
+            <span class="logo-icon">🔱</span>
+            <span>Klaw</span>
         </a>
-        <p class="download-info">v1.0.0 · 208MB · Windows 10/11 · <span>Free & Open Source</span></p>
-        
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-num">33</div>
-                <div class="stat-label">LLM Providers</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">22</div>
-                <div class="stat-label">Chat Channels</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">52+</div>
-                <div class="stat-label">Skills</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">100%</div>
-                <div class="stat-label">Self-Hosted</div>
-            </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#compare">Compare</a>
+            <a href="#providers">Providers</a>
+            <a href="https://github.com/kulharir7/klaw-gateway" target="_blank">GitHub</a>
+            <a href="#download" class="nav-cta">Download</a>
         </div>
-    </section>
-    
-    <section class="features">
-        <h2>Everything you need</h2>
-        <div class="grid">
-            <div class="card">
-                <div class="card-icon">🤖</div>
-                <h3>33 AI Providers</h3>
-                <p>Claude, GPT-4, Gemini, Ollama, Mistral, Llama, and 27 more. Switch models anytime.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">💬</div>
-                <h3>22 Chat Channels</h3>
-                <p>Telegram, Discord, WhatsApp, Slack, iMessage, Signal, Teams, IRC, and more.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">🔧</div>
-                <h3>52+ Skills</h3>
-                <p>GitHub, coding agents, weather, PDF, email, calendar, web search, and custom skills.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">🖥️</div>
-                <h3>Desktop App</h3>
-                <p>One click to install. One click to run. Setup wizard guides you through everything.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">🔒</div>
-                <h3>Self-Hosted & Private</h3>
-                <p>Runs on your machine. Your data never leaves your computer. No cloud dependency.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">⚡</div>
-                <h3>Streaming & Fast</h3>
-                <p>Real-time streaming responses. Context-aware conversations. Smart model selection.</p>
-            </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="badge">
+            <span class="badge-dot"></span>
+            v1.1.0 — Now with Computer Use & Web Agent
         </div>
-    </section>
-    
-    <section class="how">
-        <h2>Get started in 3 steps</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-text">
-                    <h4>Download & Install</h4>
-                    <p>Download the installer, run it. Next → Next → Install → Done.</p>
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-text">
-                    <h4>Configure</h4>
-                    <p>Setup wizard opens automatically. Add your AI provider API key and pick a model.</p>
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-text">
-                    <h4>Start Chatting</h4>
-                    <p>Chat directly in the app, or connect Telegram/Discord/WhatsApp for AI anywhere.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section class="providers">
-        <h2>Supported AI Providers</h2>
-        <p>Use any model from any provider — switch freely.</p>
-        <div class="tags">
-            <span class="tag">Anthropic Claude</span>
-            <span class="tag">OpenAI GPT</span>
-            <span class="tag">Google Gemini</span>
-            <span class="tag">Ollama</span>
-            <span class="tag">Mistral</span>
-            <span class="tag">Groq</span>
-            <span class="tag">Together AI</span>
-            <span class="tag">Perplexity</span>
-            <span class="tag">DeepSeek</span>
-            <span class="tag">Cohere</span>
-            <span class="tag">AWS Bedrock</span>
-            <span class="tag">Azure OpenAI</span>
-            <span class="tag">Fireworks AI</span>
-            <span class="tag">Replicate</span>
-            <span class="tag">HuggingFace</span>
-            <span class="tag">OpenRouter</span>
-            <span class="tag">+ 17 more</span>
-        </div>
-    </section>
-    
-    <section class="cta">
-        <h2>Ready to try?</h2>
-        <p>Download Klaw and have your AI gateway running in under 2 minutes.</p>
-        <a href="https://github.com/kulharir7/klaw-gateway/releases/download/v1.0.0/Klaw-Setup-2026.2.26.exe" class="download-btn">
-            ⬇️ Download Klaw v1.0.0
-        </a>
-    </section>
-    
-    <footer>
-        <p>
-            Built by <a href="https://github.com/kulharir7">Ravindra Kumar</a> · 
-            <a href="https://github.com/kulharir7/klaw-gateway">GitHub</a> · 
-            Based on <a href="https://github.com/openclaw/openclaw">OpenClaw</a> · 
-            MIT License
+        <h1>
+            Your Personal<br>
+            <span class="gradient">AI Command Center</span>
+        </h1>
+        <p class="hero-desc">
+            One app to control them all. Connect 33+ AI providers, automate your computer, 
+            browse the web with AI, and earn money — all from your desktop.
         </p>
-    </footer>
+        <div class="hero-buttons">
+            <a href="https://github.com/kulharir7/klaw-gateway/releases/latest" class="btn btn-primary" id="download">
+                ⬇️ Download for Windows
+            </a>
+            <a href="https://github.com/kulharir7/klaw-gateway" class="btn btn-secondary" target="_blank">
+                ⭐ Star on GitHub
+            </a>
+        </div>
+        <div class="hero-meta">
+            <span>🖥️ Windows 10/11</span>
+            <span>📦 269 MB</span>
+            <span>⚡ Free & Open Source</span>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<div class="stats reveal">
+    <div class="stat">
+        <div class="stat-num">33+</div>
+        <div class="stat-label">AI Providers</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">22</div>
+        <div class="stat-label">Channels</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">52+</div>
+        <div class="stat-label">Built-in Skills</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Possibilities</div>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+    <div class="section-label reveal">Features</div>
+    <h2 class="section-title reveal">Everything you need,<br>nothing you don't.</h2>
+    <p class="section-desc reveal">
+        Klaw isn't just another AI chat app. It's a full-stack AI operating system for your desktop.
+    </p>
+
+    <div class="features-grid">
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-purple">🖥️</div>
+            <h3>Computer Use Agent</h3>
+            <p>AI sees your screen, moves the mouse, clicks buttons, types text. Automate any desktop app without writing code.</p>
+            <span class="feature-tag tag-new">NEW</span>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-green">🌐</div>
+            <h3>Web Agent</h3>
+            <p>AI browses the web for you. Fill forms, extract data, navigate websites, login to accounts — hands-free.</p>
+            <span class="feature-tag tag-new">NEW</span>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-orange">💰</div>
+            <h3>Earn Mode</h3>
+            <p>AI finds freelance jobs on Upwork, Indeed, LinkedIn. Writes proposals, scores jobs, manages applications.</p>
+            <span class="feature-tag tag-hot">HOT</span>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-pink">⚡</div>
+            <h3>Quick Chat</h3>
+            <p>Press Ctrl+Shift+Space anywhere for instant AI. Floating window that's always one hotkey away.</p>
+            <span class="feature-tag tag-new">NEW</span>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-purple">🔌</div>
+            <h3>Plugin Store</h3>
+            <p>Browse and install skills with one click. Weather, GitHub, coding agents, PDF editing, web search, and more.</p>
+            <span class="feature-tag tag-ai">52+ SKILLS</span>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-green">🤖</div>
+            <h3>33+ AI Providers</h3>
+            <p>Claude, GPT-4, Gemini, Mistral, Llama, DeepSeek, Ollama, and 26 more. Switch models anytime.</p>
+            <span class="feature-tag tag-ai">ALL MODELS</span>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-orange">💬</div>
+            <h3>22 Channels</h3>
+            <p>Connect Telegram, Discord, Slack, WhatsApp, Signal, iMessage, and more. AI responds everywhere.</p>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-pink">🔐</div>
+            <h3>Security Vault</h3>
+            <p>Blocks banking sites, card numbers, passwords. Three safety modes: full-auto, ask-before, watch-only.</p>
+        </div>
+
+        <div class="feature-card reveal">
+            <div class="feature-icon fi-purple">🎨</div>
+            <h3>Premium Dark UI</h3>
+            <p>Beautiful Korvus theme with glassmorphism. Designed for long coding sessions and late-night work.</p>
+        </div>
+    </div>
+</section>
+
+<!-- COMPUTER USE HERO -->
+<section class="section">
+    <div class="hero-feature reveal">
+        <div class="hero-feature-text">
+            <div class="section-label">Flagship Feature</div>
+            <h3>AI Controls Your Computer</h3>
+            <p>Tell Klaw what to do in plain English. It takes screenshots, understands what's on screen, and performs actions — clicks, types, scrolls — just like a human.</p>
+            <ul class="feature-list">
+                <li>Screenshot → AI Vision → Action loop</li>
+                <li>Works with any app — Notepad, Excel, Browser</li>
+                <li>Security vault blocks sensitive sites</li>
+                <li>Three modes: full-auto, ask-before, watch-only</li>
+                <li>PowerShell-based — no dependencies</li>
+            </ul>
+        </div>
+        <div class="hero-feature-visual">
+            <div class="terminal">
+                <div class="terminal-bar">
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                </div>
+                <div class="terminal-body">
+                    <span class="t-dim">$</span> <span class="t-purple">klaw</span> computer-use<br>
+                    <br>
+                    <span class="t-green">→</span> <span class="t-dim">Taking screenshot...</span><br>
+                    <span class="t-green">→</span> <span class="t-dim">Analyzing screen with AI vision...</span><br>
+                    <span class="t-green">→</span> <span class="t-dim">Found: Chrome browser, search bar</span><br>
+                    <span class="t-green">→</span> <span class="t-orange">Action:</span> click(search_bar)<br>
+                    <span class="t-green">→</span> <span class="t-orange">Action:</span> type("Klaw AI Gateway")<br>
+                    <span class="t-green">→</span> <span class="t-orange">Action:</span> press(Enter)<br>
+                    <span class="t-green">✓</span> <span class="t-green">Task completed in 4.2s</span><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="section" id="compare">
+    <div class="section-label reveal">Compare</div>
+    <h2 class="section-title reveal">Why Klaw?</h2>
+    <p class="section-desc reveal">See how Klaw stacks up against other AI desktop apps.</p>
+
+    <div class="comparison reveal">
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th class="highlight-col">🔱 Klaw</th>
+                    <th>Claude Desktop</th>
+                    <th>ChatGPT App</th>
+                    <th>Perplexity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Computer Use (Screen Control)</td>
+                    <td class="highlight-col"><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                </tr>
+                <tr>
+                    <td>Web Browsing Agent</td>
+                    <td class="highlight-col"><span class="check">✓</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td>Multiple AI Providers (33+)</td>
+                    <td class="highlight-col"><span class="check">✓</span></td>
+                    <td><span class="cross">✗</span> Claude only</td>
+                    <td><span class="cross">✗</span> GPT only</td>
+                    <td><span class="cross">✗</span></td>
+                </tr>
+                <tr>
+                    <td>Earn Mode (Freelance AI)</td>
+                    <td class="highlight-col"><span class="check">✓</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                </tr>
+                <tr>
+                    <td>Telegram / Discord / Slack Bot</td>
+                    <td class="highlight-col"><span class="check">✓</span> 22 channels</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                </tr>
+                <tr>
+                    <td>Plugin / Skill Store</td>
+                    <td class="highlight-col"><span class="check">✓</span> 52+ skills</td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="check">✓</span> GPTs</td>
+                    <td><span class="cross">✗</span></td>
+                </tr>
+                <tr>
+                    <td>Global Hotkey (Quick Chat)</td>
+                    <td class="highlight-col"><span class="check">✓</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="check">✓</span></td>
+                    <td><span class="check">✓</span></td>
+                </tr>
+                <tr>
+                    <td>Open Source</td>
+                    <td class="highlight-col"><span class="check">✓</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                </tr>
+                <tr>
+                    <td>Self-Hosted / Offline</td>
+                    <td class="highlight-col"><span class="check">✓</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                    <td><span class="cross">✗</span></td>
+                </tr>
+                <tr>
+                    <td>Price</td>
+                    <td class="highlight-col"><strong style="color: var(--green)">Free</strong></td>
+                    <td>$20/mo</td>
+                    <td>$20/mo</td>
+                    <td>$20/mo</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- PROVIDERS -->
+<section class="section providers" id="providers">
+    <div class="section-label reveal">Providers</div>
+    <h2 class="section-title reveal">Works with every AI</h2>
+    <p class="section-desc reveal" style="margin-left: auto; margin-right: auto;">
+        Connect any provider. Switch models with one click. No vendor lock-in.
+    </p>
+    <div class="provider-logos reveal">
+        <div class="provider-chip">🟣 Anthropic (Claude)</div>
+        <div class="provider-chip">🟢 OpenAI (GPT-4)</div>
+        <div class="provider-chip">🔵 Google (Gemini)</div>
+        <div class="provider-chip">🟠 Mistral</div>
+        <div class="provider-chip">🦙 Meta (Llama)</div>
+        <div class="provider-chip">🐋 DeepSeek</div>
+        <div class="provider-chip">🦭 Ollama (Local)</div>
+        <div class="provider-chip">☁️ AWS Bedrock</div>
+        <div class="provider-chip">🔷 Azure OpenAI</div>
+        <div class="provider-chip">🟤 Cohere</div>
+        <div class="provider-chip">⚡ Groq</div>
+        <div class="provider-chip">🔥 Together AI</div>
+        <div class="provider-chip">🌊 Perplexity</div>
+        <div class="provider-chip">🚀 Fireworks</div>
+        <div class="provider-chip">+19 more</div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+    <div class="cta-box reveal">
+        <h2>Ready to take control?</h2>
+        <p>Download Klaw and let AI work for you. Free, open source, forever.</p>
+        <a href="https://github.com/kulharir7/klaw-gateway/releases/latest" class="btn btn-primary">
+            ⬇️ Download Klaw v1.1.0
+        </a>
+        <p class="cta-size">Windows 10/11 · 269 MB · Free</p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p>
+        Built with ❤️ by <a href="https://github.com/kulharir7">Ravindra Kumar</a> · 
+        <a href="https://github.com/kulharir7/klaw-gateway">GitHub</a> · 
+        © 2026 Klaw
+    </p>
+</footer>
+
+<!-- SCROLL REVEAL -->
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+
 </body>
 </html>
