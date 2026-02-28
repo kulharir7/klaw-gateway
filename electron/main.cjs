@@ -2761,8 +2761,11 @@ function createQuickChat() {
     quickChatWindow.focus();
   });
   
-  quickChatWindow.on('blur', () => {
-    // Don't hide on blur — let user switch apps
+  // Esc key hides quick chat
+  quickChatWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'Escape') {
+      quickChatWindow.hide();
+    }
   });
   
   quickChatWindow.on('closed', () => {
