@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klaw — AI Gateway Desktop App</title>
+    <meta name="description" content="One-click AI gateway desktop app. Connect Claude, GPT, Gemini to Telegram, Discord, WhatsApp. Self-hosted, private, powerful.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦞</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --border: #1e1e2e;
+            --text: #e4e4ef;
+            --text-dim: #8888a0;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --green: #22c55e;
+            --orange: #f59e0b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 60%);
+        }
+        
+        .logo { font-size: 4rem; margin-bottom: 1rem; }
+        
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .tagline {
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--accent);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 24px var(--accent-glow);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--accent-glow);
+        }
+        
+        .download-info {
+            margin-top: 1rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        
+        .download-info span { color: var(--green); }
+        
+        /* Stats bar */
+        .stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        
+        /* Features */
+        .features {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: border-color 0.2s;
+        }
+        
+        .card:hover { border-color: var(--accent); }
+        
+        .card-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+        
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card p { color: var(--text-dim); font-size: 0.95rem; }
+        
+        /* How it works */
+        .how {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+        
+        .how h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+        }
+        
+        .step-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            min-width: 2.5rem;
+        }
+        
+        .step-text h4 { margin-bottom: 0.25rem; }
+        .step-text p { color: var(--text-dim); font-size: 0.9rem; }
+        
+        /* Providers */
+        .providers {
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .providers h2 { font-size: 2rem; margin-bottom: 1rem; }
+        .providers p { color: var(--text-dim); margin-bottom: 2rem; }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        .tag {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: radial-gradient(ellipse at 50% 100%, var(--accent-glow) 0%, transparent 60%);
+        }
+        
+        .cta h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .cta p { color: var(--text-dim); margin-bottom: 2rem; font-size: 1.1rem; }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        footer a { color: var(--accent); text-decoration: none; }
+        
+        @media (max-width: 600px) {
+            .stats { gap: 1.5rem; }
+            .step { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="logo">🦞</div>
+        <h1>Klaw</h1>
+        <p class="tagline">One-click AI gateway for your desktop. Connect Claude, GPT & Gemini to Telegram, Discord, WhatsApp — all self-hosted.</p>
+        <a href="https://github.com/kulharir7/klaw-gateway/releases/download/v1.0.0/Klaw-Setup-2026.2.26.exe" class="download-btn">
+            ⬇️ Download for Windows
+        </a>
+        <p class="download-info">v1.0.0 · 208MB · Windows 10/11 · <span>Free & Open Source</span></p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num">33</div>
+                <div class="stat-label">LLM Providers</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">22</div>
+                <div class="stat-label">Chat Channels</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">52+</div>
+                <div class="stat-label">Skills</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">100%</div>
+                <div class="stat-label">Self-Hosted</div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features">
+        <h2>Everything you need</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-icon">🤖</div>
+                <h3>33 AI Providers</h3>
+                <p>Claude, GPT-4, Gemini, Ollama, Mistral, Llama, and 27 more. Switch models anytime.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">💬</div>
+                <h3>22 Chat Channels</h3>
+                <p>Telegram, Discord, WhatsApp, Slack, iMessage, Signal, Teams, IRC, and more.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔧</div>
+                <h3>52+ Skills</h3>
+                <p>GitHub, coding agents, weather, PDF, email, calendar, web search, and custom skills.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🖥️</div>
+                <h3>Desktop App</h3>
+                <p>One click to install. One click to run. Setup wizard guides you through everything.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔒</div>
+                <h3>Self-Hosted & Private</h3>
+                <p>Runs on your machine. Your data never leaves your computer. No cloud dependency.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h3>Streaming & Fast</h3>
+                <p>Real-time streaming responses. Context-aware conversations. Smart model selection.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="how">
+        <h2>Get started in 3 steps</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    <h4>Download & Install</h4>
+                    <p>Download the installer, run it. Next → Next → Install → Done.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    <h4>Configure</h4>
+                    <p>Setup wizard opens automatically. Add your AI provider API key and pick a model.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    <h4>Start Chatting</h4>
+                    <p>Chat directly in the app, or connect Telegram/Discord/WhatsApp for AI anywhere.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="providers">
+        <h2>Supported AI Providers</h2>
+        <p>Use any model from any provider — switch freely.</p>
+        <div class="tags">
+            <span class="tag">Anthropic Claude</span>
+            <span class="tag">OpenAI GPT</span>
+            <span class="tag">Google Gemini</span>
+            <span class="tag">Ollama</span>
+            <span class="tag">Mistral</span>
+            <span class="tag">Groq</span>
+            <span class="tag">Together AI</span>
+            <span class="tag">Perplexity</span>
+            <span class="tag">DeepSeek</span>
+            <span class="tag">Cohere</span>
+            <span class="tag">AWS Bedrock</span>
+            <span class="tag">Azure OpenAI</span>
+            <span class="tag">Fireworks AI</span>
+            <span class="tag">Replicate</span>
+            <span class="tag">HuggingFace</span>
+            <span class="tag">OpenRouter</span>
+            <span class="tag">+ 17 more</span>
+        </div>
+    </section>
+    
+    <section class="cta">
+        <h2>Ready to try?</h2>
+        <p>Download Klaw and have your AI gateway running in under 2 minutes.</p>
+        <a href="https://github.com/kulharir7/klaw-gateway/releases/download/v1.0.0/Klaw-Setup-2026.2.26.exe" class="download-btn">
+            ⬇️ Download Klaw v1.0.0
+        </a>
+    </section>
+    
+    <footer>
+        <p>
+            Built by <a href="https://github.com/kulharir7">Ravindra Kumar</a> · 
+            <a href="https://github.com/kulharir7/klaw-gateway">GitHub</a> · 
+            Based on <a href="https://github.com/openclaw/openclaw">OpenClaw</a> · 
+            MIT License
+        </p>
+    </footer>
+</body>
+</html>
