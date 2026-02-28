@@ -2530,7 +2530,7 @@ ipcMain.handle('computer-use:start', async (event, task) => {
     if (computerUseAgent && computerUseAgent.running) {
       return { success: false, error: 'Agent already running' };
     }
-    const { ComputerUseAgent } = require('./computer-use');
+    const { ComputerUseAgent } = require('./computer-use/index.cjs');
     computerUseAgent = new ComputerUseAgent();
     
     const steps = [];
@@ -2571,7 +2571,7 @@ ipcMain.handle('computer-use:status', () => {
 
 ipcMain.handle('computer-use:screenshot', async () => {
   try {
-    const screen = require('./computer-use/screen');
+    const screen = require('./computer-use/screen.cjs');
     const b64 = await screen.screenshot();
     return { success: true, screenshot: b64 };
   } catch (e) {
@@ -2581,7 +2581,7 @@ ipcMain.handle('computer-use:screenshot', async () => {
 
 ipcMain.handle('computer-use:click', async (event, x, y, options) => {
   try {
-    const screen = require('./computer-use/screen');
+    const screen = require('./computer-use/screen.cjs');
     await screen.click(x, y, options || {});
     return { success: true };
   } catch (e) {
@@ -2591,7 +2591,7 @@ ipcMain.handle('computer-use:click', async (event, x, y, options) => {
 
 ipcMain.handle('computer-use:type', async (event, text) => {
   try {
-    const screen = require('./computer-use/screen');
+    const screen = require('./computer-use/screen.cjs');
     await screen.type(text);
     return { success: true };
   } catch (e) {
@@ -2601,7 +2601,7 @@ ipcMain.handle('computer-use:type', async (event, text) => {
 
 ipcMain.handle('computer-use:key', async (event, combo) => {
   try {
-    const screen = require('./computer-use/screen');
+    const screen = require('./computer-use/screen.cjs');
     await screen.key(combo);
     return { success: true };
   } catch (e) {
@@ -2611,7 +2611,7 @@ ipcMain.handle('computer-use:key', async (event, combo) => {
 
 ipcMain.handle('computer-use:scroll', async (event, direction, amount) => {
   try {
-    const screen = require('./computer-use/screen');
+    const screen = require('./computer-use/screen.cjs');
     await screen.scroll(direction, amount);
     return { success: true };
   } catch (e) {
@@ -2621,7 +2621,7 @@ ipcMain.handle('computer-use:scroll', async (event, direction, amount) => {
 
 ipcMain.handle('computer-use:open-app', async (event, appName) => {
   try {
-    const screen = require('./computer-use/screen');
+    const screen = require('./computer-use/screen.cjs');
     await screen.openApp(appName);
     return { success: true };
   } catch (e) {
@@ -2631,7 +2631,7 @@ ipcMain.handle('computer-use:open-app', async (event, appName) => {
 
 ipcMain.handle('computer-use:open-url', async (event, url) => {
   try {
-    const screen = require('./computer-use/screen');
+    const screen = require('./computer-use/screen.cjs');
     await screen.openUrl(url);
     return { success: true };
   } catch (e) {
@@ -2641,9 +2641,9 @@ ipcMain.handle('computer-use:open-url', async (event, url) => {
 
 ipcMain.handle('computer-use:vault-check', async (event, url) => {
   try {
-    const vault = require('./computer-use/vault');
-    const blocked = vault.isBlocked(url);
-    return { blocked, reason: blocked ? vault.getBlockReason(url) : null };
+    const vault = require('./computer-use/vault.cjs');
+    const result = vault.checkUrl(url);
+    return { blocked: result.blocked || false, reason: result.reason || null };
   } catch (e) {
     return { blocked: false, error: e.message };
   }
