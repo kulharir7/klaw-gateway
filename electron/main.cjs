@@ -2752,15 +2752,11 @@ function createQuickChat() {
     },
   });
   
-  quickChatWindow.loadFile(path.join(__dirname, 'quick-chat.html'));
+  // Load gateway webchat directly — same working UI as main window
+  const token = getGatewayToken() || '';
+  quickChatWindow.loadURL(`http://127.0.0.1:19789/?token=${token}`);
   
   quickChatWindow.once('ready-to-show', () => {
-    // Inject gateway config
-    const token = gatewayToken || '';
-    const port = 19789;
-    quickChatWindow.webContents.executeJavaScript(
-      `window.__GATEWAY_PORT__ = ${port}; window.__GATEWAY_TOKEN__ = "${token}";`
-    );
     quickChatWindow.show();
     quickChatWindow.focus();
   });
@@ -2774,24 +2770,16 @@ function createQuickChat() {
   });
 }
 
-// Register global shortcut after app is ready
+// Quick Chat — Ctrl+Shift+Space (doesn't conflict with existing shortcuts)
 app.whenReady().then(() => {
   try {
-    const ret = globalShortcut.register('CommandOrControl+Shift+Space', () => {
+    globalShortcut.register('CommandOrControl+Shift+Space', () => {
       createQuickChat();
     });
-    if (ret) {
-      console.log('[Klaw] Global hotkey Ctrl+Shift+Space registered for Quick Chat');
-    } else {
-      console.warn('[Klaw] Global hotkey Ctrl+Space registration failed');
-    }
+    console.log('[Klaw] Quick Chat hotkey Ctrl+Shift+Space registered');
   } catch (e) {
-    console.warn('[Klaw] Global hotkey error:', e.message);
+    console.warn('[Klaw] Quick Chat hotkey error:', e.message);
   }
-});
-
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
 });
 
 
