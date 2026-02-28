@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Klaw Quick Chat</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', -apple-system, sans-serif;
+  background: rgba(10, 14, 23, 0.97);
+  color: #e2e8f0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  -webkit-app-region: drag;
+}
+.header .logo { font-size: 14px; font-weight: 700; color: #38bdf8; letter-spacing: 1px; }
+.header .shortcut { margin-left: auto; font-size: 11px; color: #64748b; -webkit-app-region: no-drag; }
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+.message {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 90%;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.message.user {
+  background: rgba(56, 189, 248, 0.15);
+  margin-left: auto;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+.message.ai {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.thinking { color: #64748b; font-style: italic; }
+.status { text-align: center; font-size: 12px; color: #38bdf8; padding: 4px; }
+
+.input-area {
+  display: flex;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  gap: 8px;
+}
+#input {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e2e8f0;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+}
+#input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15); }
+#input::placeholder { color: #475569; }
+
+button#send {
+  background: #38bdf8;
+  color: #0a0e17;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+button#send:hover { background: #0ea5e9; }
+button#send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <span class="logo">🔱 KLAW</span>
+    <span class="shortcut">Ctrl+Shift+Space to toggle • Esc to close</span>
+  </div>
+  <div id="status" class="status">Connecting...</div>
+  <div class="messages" id="messages">
+    <div class="message ai">What can I help you with?</div>
+  </div>
+  <div class="input-area">
+    <textarea id="input" placeholder="Ask anything..." rows="1" autofocus></textarea>
+    <button id="send">Send</button>
+  </div>
+
+<script>
+const messages = document.getElementById('messages');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const statusEl = document.getElementById('status');
+
+let ws = null;
+let sessionId = 'quick-chat-' + Date.now();
+let pendingReply = null;
+
+// Gateway config (injected by Electron)
+const PORT = window.__GATEWAY_PORT__ || 19789;
+const TOKEN = window.__GATEWAY_TOKEN__ || '';
+
+function connectWS() {
+  const url = `ws://127.0.0.1:${PORT}`;
+  statusEl.textContent = 'Connecting...';
+  
+  try {
+    ws = new WebSocket(url);
+  } catch(e) {
+    statusEl.textContent = 'Gateway not available';
+    return;
+  }
+  
+  ws.onopen = () => {
+    statusEl.textContent = 'Connected ✓';
+    setTimeout(() => statusEl.style.display = 'none', 2000);
+    
+    // Send hello
+    ws.send(JSON.stringify({
+      type: 'hello',
+      token: TOKEN,
+      clientName: 'klaw-quick-chat',
+      clientVersion: '1.0.0',
+    }));
+  };
+  
+  ws.onmessage = (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      handleMessage(msg);
+    } catch(e) {}
+  };
+  
+  ws.onclose = () => {
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Disconnected — reconnecting...';
+    setTimeout(connectWS, 3000);
+  };
+  
+  ws.onerror = () => {
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Connection error';
+  };
+}
+
+function handleMessage(msg) {
+  if (msg.type === 'hello-ok') {
+    // Connected successfully
+    return;
+  }
+  
+  if (msg.type === 'chat.reply' || msg.type === 'reply') {
+    const text = msg.text || msg.message || msg.content || '';
+    if (text && pendingReply) {
+      pendingReply.textContent = text;
+      pendingReply = null;
+      sendBtn.disabled = false;
+      messages.scrollTop = messages.scrollHeight;
+    }
+    return;
+  }
+  
+  if (msg.type === 'chat.stream' || msg.type === 'stream') {
+    const chunk = msg.text || msg.delta || msg.content || '';
+    if (chunk && pendingReply) {
+      if (pendingReply.querySelector('.thinking')) {
+        pendingReply.textContent = '';
+      }
+      pendingReply.textContent += chunk;
+      messages.scrollTop = messages.scrollHeight;
+    }
+    return;
+  }
+  
+  if (msg.type === 'chat.stream.end' || msg.type === 'stream.end') {
+    pendingReply = null;
+    sendBtn.disabled = false;
+    return;
+  }
+}
+
+// Auto-resize textarea
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+});
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+  if (e.key === 'Escape') {
+    window.close();
+  }
+});
+
+sendBtn.addEventListener('click', sendMessage);
+
+function sendMessage() {
+  const text = input.value.trim();
+  if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+  
+  addMessage(text, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+  sendBtn.disabled = true;
+  
+  const thinkingEl = addMessage('', 'ai');
+  thinkingEl.innerHTML = '<span class="thinking">Thinking...</span>';
+  pendingReply = thinkingEl;
+  
+  // Send chat message via WebSocket
+  ws.send(JSON.stringify({
+    type: 'chat.message',
+    text: text,
+    sessionId: sessionId,
+    source: 'quick-chat',
+  }));
+  
+  // Timeout fallback
+  setTimeout(() => {
+    if (pendingReply === thinkingEl && thinkingEl.querySelector('.thinking')) {
+      thinkingEl.textContent = 'No response — gateway may be processing...';
+      sendBtn.disabled = false;
+      pendingReply = null;
+    }
+  }, 30000);
+}
+
+function addMessage(content, type) {
+  const div = document.createElement('div');
+  div.className = `message ${type}`;
+  div.textContent = content;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  return div;
+}
+
+window.addEventListener('focus', () => input.focus());
+
+// Connect on load
+connectWS();
+</script>
+</body>
+</html>

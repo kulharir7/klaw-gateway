@@ -2519,6 +2519,281 @@ ipcMain.on('screen-vision-send', async (event, { crop, prompt, scaleFactor }) =>
   }
 });
 
+// ─── Computer Use Agent IPC ──────────────────────────
+// All computer-use code lives in electron/computer-use/
+// Gateway is NEVER touched. This is purely Electron-side.
+
+let computerUseAgent = null;
+
+ipcMain.handle('computer-use:start', async (event, task) => {
+  try {
+    if (computerUseAgent && computerUseAgent.running) {
+      return { success: false, error: 'Agent already running' };
+    }
+    const { ComputerUseAgent } = require('./computer-use');
+    computerUseAgent = new ComputerUseAgent();
+    
+    const steps = [];
+    computerUseAgent.on('step', (step) => {
+      steps.push(step);
+      // Send step to renderer
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('computer-use:step', step);
+      }
+    });
+    
+    const result = await computerUseAgent.run(task);
+    return { success: true, result, steps };
+  } catch (e) {
+    console.error('[Klaw] Computer Use error:', e.message);
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:stop', async () => {
+  try {
+    if (computerUseAgent) {
+      computerUseAgent.stop();
+      computerUseAgent = null;
+    }
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:status', () => {
+  return {
+    running: computerUseAgent ? computerUseAgent.running : false,
+    steps: computerUseAgent ? computerUseAgent.stepCount : 0,
+  };
+});
+
+ipcMain.handle('computer-use:screenshot', async () => {
+  try {
+    const screen = require('./computer-use/screen');
+    const b64 = await screen.screenshot();
+    return { success: true, screenshot: b64 };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:click', async (event, x, y, options) => {
+  try {
+    const screen = require('./computer-use/screen');
+    await screen.click(x, y, options || {});
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:type', async (event, text) => {
+  try {
+    const screen = require('./computer-use/screen');
+    await screen.type(text);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:key', async (event, combo) => {
+  try {
+    const screen = require('./computer-use/screen');
+    await screen.key(combo);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:scroll', async (event, direction, amount) => {
+  try {
+    const screen = require('./computer-use/screen');
+    await screen.scroll(direction, amount);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:open-app', async (event, appName) => {
+  try {
+    const screen = require('./computer-use/screen');
+    await screen.openApp(appName);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:open-url', async (event, url) => {
+  try {
+    const screen = require('./computer-use/screen');
+    await screen.openUrl(url);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('computer-use:vault-check', async (event, url) => {
+  try {
+    const vault = require('./computer-use/vault');
+    const blocked = vault.isBlocked(url);
+    return { blocked, reason: blocked ? vault.getBlockReason(url) : null };
+  } catch (e) {
+    return { blocked: false, error: e.message };
+  }
+});
+
+// ─── Web Agent IPC ───────────────────────────────────
+// Browser automation agent — lives in electron/browser-agent/
+// Gateway is NEVER touched.
+
+ipcMain.handle('web-agent:navigate', async (event, url, task) => {
+  try {
+    const WebAgent = require('./browser-agent/web-agent');
+    const agent = new WebAgent();
+    const result = await agent.navigate(url, task);
+    return { success: true, result };
+  } catch (e) {
+    console.error('[Klaw] Web Agent error:', e.message);
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('web-agent:login', async (event, site, credentials) => {
+  try {
+    const LoginManager = require('./browser-agent/login-manager');
+    const lm = new LoginManager();
+    const result = await lm.login(site, credentials);
+    return { success: true, result };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+// ─── Earn Mode IPC ───────────────────────────────────
+// Freelance automation — lives in electron/earn-mode/
+// Gateway is NEVER touched.
+
+ipcMain.handle('earn-mode:search-jobs', async (event, options) => {
+  try {
+    const upwork = require('./earn-mode/upwork');
+    const jobs = await upwork.searchJobs(options);
+    return { success: true, jobs };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('earn-mode:write-proposal', async (event, job) => {
+  try {
+    const writer = require('./earn-mode/proposal-writer');
+    const proposal = await writer.generate(job);
+    return { success: true, proposal };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+ipcMain.handle('earn-mode:dashboard', async () => {
+  try {
+    const dashboard = require('./earn-mode/dashboard');
+    const stats = await dashboard.getStats();
+    return { success: true, stats };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+// ─── Quick Chat (Global Hotkey) ──────────────────────
+// Ctrl+Space → floating chat window anywhere on screen
+// Gateway is NEVER touched.
+
+let quickChatWindow = null;
+
+function createQuickChat() {
+  if (quickChatWindow && !quickChatWindow.isDestroyed()) {
+    if (quickChatWindow.isVisible()) {
+      quickChatWindow.hide();
+    } else {
+      quickChatWindow.show();
+      quickChatWindow.focus();
+    }
+    return;
+  }
+  
+  const { screen: electronScreen } = require('electron');
+  const primaryDisplay = electronScreen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  
+  const winWidth = 480;
+  const winHeight = 520;
+  
+  quickChatWindow = new BrowserWindow({
+    width: winWidth,
+    height: winHeight,
+    x: Math.round((width - winWidth) / 2),
+    y: Math.round(height * 0.15),
+    frame: false,
+    transparent: true,
+    resizable: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.cjs'),
+    },
+  });
+  
+  quickChatWindow.loadFile(path.join(__dirname, 'quick-chat.html'));
+  
+  quickChatWindow.once('ready-to-show', () => {
+    // Inject gateway config
+    const token = gatewayToken || '';
+    const port = 19789;
+    quickChatWindow.webContents.executeJavaScript(
+      `window.__GATEWAY_PORT__ = ${port}; window.__GATEWAY_TOKEN__ = "${token}";`
+    );
+    quickChatWindow.show();
+    quickChatWindow.focus();
+  });
+  
+  quickChatWindow.on('blur', () => {
+    // Don't hide on blur — let user switch apps
+  });
+  
+  quickChatWindow.on('closed', () => {
+    quickChatWindow = null;
+  });
+}
+
+// Register global shortcut after app is ready
+app.whenReady().then(() => {
+  try {
+    const ret = globalShortcut.register('CommandOrControl+Shift+Space', () => {
+      createQuickChat();
+    });
+    if (ret) {
+      console.log('[Klaw] Global hotkey Ctrl+Shift+Space registered for Quick Chat');
+    } else {
+      console.warn('[Klaw] Global hotkey Ctrl+Space registration failed');
+    }
+  } catch (e) {
+    console.warn('[Klaw] Global hotkey error:', e.message);
+  }
+});
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+});
+
 
 
 
